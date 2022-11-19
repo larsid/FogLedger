@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from fogbed.emulation import Services
 from fogbed.exceptions import ContainerNotFound, NotEnoughResourcesAvailable
@@ -12,7 +12,7 @@ from fogbed.node.instance import VirtualInstance
 from fogbed.node.container import Container
 from fogbed.node.services.remote_docker import RemoteDocker
 from fogbed.node.worker import FogWorker
-from fogbed.resources import ResourceModel
+from fogbed.resources.protocols import ResourceModel
 
 from mininet.log import info
 
@@ -44,7 +44,7 @@ class FogbedDistributedExperiment(Experiment):
 
               
 
-    def add_tunnel(self, worker1: FogWorker, worker2: FogWorker): 
+    def add_tunnel(self, worker1: FogWorker, worker2: FogWorker, **params: Any):
         worker1.add_tunnel(worker2.ip)
         worker2.add_tunnel(worker1.ip)
         
@@ -58,10 +58,9 @@ class FogbedDistributedExperiment(Experiment):
         return worker
     
 
-    def add_virtual_instance(self, name: str, resource_model: ResourceModel) -> VirtualInstance:
+    def add_virtual_instance(self, name: str, resource_model: Optional[ResourceModel] = None) -> VirtualInstance:
         verify_if_datacenter_exists(name)
-        datacenter = VirtualInstance(name)
-        datacenter.assignResourceModel(resource_model)
+        datacenter = VirtualInstance(name, resource_model)
         Services.add_virtual_instance(datacenter)
         return datacenter
 

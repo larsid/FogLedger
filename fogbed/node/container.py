@@ -1,6 +1,7 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fogbed.node.services import DockerService
+from fogbed.resources.flavors import HardwareResources, Resources
 
 from mininet.util import ipAdd
 
@@ -10,13 +11,21 @@ class Container:
     def __init__(self, 
         name: str, 
         ip: Optional[str] = None,
+        dcmd: str = '/bin/bash',
         dimage: str = 'ubuntu:trusty',
-        **params
+        environment: Dict[str, str] = {},
+        volumes: List[str] = [],
+        resources: HardwareResources = Resources.SMALL,
+        **params: Any
     ):
-        self.name    = name
-        self.ip      = self._get_ip(ip)
-        self.dimage  = dimage
-        self._params = params
+        self.name       = name
+        self.ip         = self._get_ip(ip)
+        self.dcmd       = dcmd
+        self.dimage     = dimage
+        self.environment = environment
+        self.volumes    = volumes
+        self.resources  = resources
+        self._params    = params
         self._service: Optional[DockerService] = None
     
 
@@ -72,25 +81,22 @@ class Container:
     def mem_limit(self) -> int:
         mem_limit = self._params.get('mem_limit')
         return -1 if(mem_limit is None) else mem_limit
-
-    @property
-    def resources(self) -> 'Dict[str, Any] | None':
-        return self._params.get('resources')
     
     @property
     def compute_units(self) -> float:
-        resources = self.resources
-        return 0.0 if(resources is None) else resources['cu']
+        return self.resources.compute_units
     
     @property
     def memory_units(self) -> int:
-        resources = self.resources
-        return 0 if(resources is None) else resources['mu']
+        return self.resources.memory_units
 
     @property
     def params(self) -> Dict[str, Any]:
         self._params['ip'] = self.ip
+        self._params['dcmd'] = self.dcmd
         self._params['dimage'] = self.dimage
+        self._params['environment'] = self.environment
+        self._params['volumes'] = self.volumes
         return self._params
 
     def __repr__(self) -> str:

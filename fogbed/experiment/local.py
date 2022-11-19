@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import Any, List, Optional, Type
 
 from fogbed.emulation import Services
 from fogbed.exceptions import ContainerNotFound, NotEnoughResourcesAvailable
@@ -9,10 +9,9 @@ from fogbed.experiment.helpers import (
     verify_if_datacenter_exists
 )
 from fogbed.net import Fogbed
-from fogbed.node.container import Container
-from fogbed.node.instance import VirtualInstance
+from fogbed.node import Container, VirtualInstance
 from fogbed.node.services.local_docker import LocalDocker
-from fogbed.resources import ResourceModel
+from fogbed.resources.protocols import ResourceModel
 
 from mininet.cli import CLI
 from mininet.log import info
@@ -26,14 +25,13 @@ class FogbedExperiment(Experiment):
         self.net = Fogbed(topo=self.topology, build=False, controller=controller, switch=switch)
     
 
-    def add_link(self, node1: VirtualInstance, node2: VirtualInstance, **params):
+    def add_link(self, node1: VirtualInstance, node2: VirtualInstance, **params: Any):
         self.topology.addLink(node1.switch, node2.switch, **params)
 
 
-    def add_virtual_instance(self, name: str, resource_model: ResourceModel) -> VirtualInstance:
+    def add_virtual_instance(self, name: str, resource_model: Optional[ResourceModel] = None) -> VirtualInstance:
         verify_if_datacenter_exists(name)
-        datacenter = VirtualInstance(name)
-        datacenter.assignResourceModel(resource_model)
+        datacenter = VirtualInstance(name, resource_model)
         Services.add_virtual_instance(datacenter)
         self.topology.addSwitch(datacenter.switch)
         return datacenter
