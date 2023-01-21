@@ -36,14 +36,14 @@ Then access the url `http://localhost:3000` on your browser to visualize a React
 ![monitor](https://user-images.githubusercontent.com/33939999/202031666-45889ae0-49ee-4a5e-a7a6-94f1705a8a08.jpeg)
 
 ### Local emulation
-```python
-from fogbed.emulation import Services
-from fogbed.experiment.local import FogbedExperiment
-from fogbed.node import Container
-from fogbed.resources import Resources
-from fogbed.resources.models import CloudResourceModel, EdgeResourceModel, FogResourceModel
+Here we have the instantiation of a fog topology, used by fogbed, followed by the definition of 3 Virtual Instances. A `VirtualInstance` in the context of fogbed is a unit that can have one or more containers linked together by a single switch. Each Virtual Instance has a resource model associated with it that defines how many resources that instance have so that they can be distributed among it’s containers.
 
-from mininet.log import setLogLevel
+```python
+from fogbed import (
+    FogbedExperiment, Container, Resources, Services,
+    CloudResourceModel, EdgeResourceModel, FogResourceModel,
+    setLogLevel
+)
 
 setLogLevel('info')
 
@@ -80,6 +80,7 @@ try:
     
     print(d1.cmd('ifconfig'))
     print(d1.cmd(f'ping -c 4 {d6.ip}'))
+    print(d6.cmd(f'ping -c 4 {d1.ip}'))
     
     exp.start_cli()
 except Exception as ex: 
@@ -88,16 +89,19 @@ finally:
     exp.stop()
 
 ```
-Here we have the instantiation of a fog topology, used by fogbed, followed by the definition of 3 Virtual Instances. A `VirtualInstance` in the context of fogbed is a unit that can have one or more hosts linked together by a single switch. Each Virtual Instance has a resource model associated with it that defines how many resources that instance have so that they can be distributed among it’s containers.
+In this example we are checking the command `ifconfig` inside the host `d1` that is inside the Virtual Instance `cloud`, and then running the ping command to test the reachability between `d1` and `d6`.
 
-
+### Resource Models
 The resource model use is based on the proposed in [son-emu](https://github.com/sonata-nfv/son-emu), each resource model has a `max_cu` and `max_mu` value, representing the maximum computing and memory units the Virtual Instance that assigns it has.
+
+There are three types of resource models in fogbed right now: `EdgeResourceModel`, `FogResourceModel` and `CloudResourceModel`. Currently, Fog and Cloud resource models are the same, using an over-provisioning strategy where if a container requests resources and all of it was already allocated to other containers, the new container starts anyway and the cpu time and memory limit for every container is recalculated. The Edge resource model has a fixed limit strategy, where if a container requests resources and all of it was already allocated, an exception is raised alerting that it can’t allocate anymore resources for new containers.
+
 
 ### Containers
 You can also create containers with custom resource restrictions like in [Containernet](https://github.com/containernet/containernet/wiki#method-containernetadddocker)
 
 ```python
-from fogbed.node import Container
+from fogbed import Container
 
 d1 = Container('d1', ip='10.0.0.1', dimage='ubuntu:trusty', dcmd='/bin/bash')
 d2 = Container('d2', ip='10.0.0.2', dimage='ubuntu:focal', mac='00:00:00:00:00:02')
@@ -119,7 +123,7 @@ Resources.XLARGE => HardwareResources(cu=16.0, mu=1024)
 If none of the predefined resources is suitable for your application, you can pass a custom one like:
 
 ```python
-from fogbed.resources.flavors import HardwareResources
+from fogbed import HardwareResources
 
 d1 = Container('d1', ip='10.0.0.1', resources=HardwareResources(cu=2.0, mu=128))
 ```
