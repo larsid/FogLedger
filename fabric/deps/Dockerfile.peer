@@ -1,3 +1,0 @@
-FROM hyperledger/fabric-peer
-RUN apk add --no-cache iputils bash
-CMD /bin/bash
