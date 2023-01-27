@@ -14,7 +14,7 @@ exp = FogbedExperiment()
 if(__name__=='__main__'):
     cloud   = exp.add_virtual_instance('cloud')
     fog   = exp.add_virtual_instance('fog',   FogResourceModel(max_cu=4, max_mu=512))
-    d1 = Container('d1', ip='10.0.0.1', dimage='alpine', resources=Resources.SMALL)
+    d1 = Container('d1', ip='10.0.0.1', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
     d2 = Container('d2', ip='10.0.0.2', dimage='ubuntu:trusty', resources=Resources.SMALL)
 
     exp.add_docker(d1, cloud)

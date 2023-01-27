@@ -7,7 +7,7 @@ function printHelp() {
     echo_bold "Usage: "
     echo "run.sh <mode> "
     echo "    <mode> - one of 'update'"
-    echo "      - 'update IMAGE_NAME' - updat docker dependencies - i.e., containernet (and dependencies) for fogbed"
+    echo "      - 'update IMAGE_NAME' - update docker dependencies - i.e., containernet (and dependencies) for fogbed"
     echo "  docker-update.sh -h (print this message)"
 
 }
