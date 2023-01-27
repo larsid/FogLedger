@@ -26,6 +26,7 @@ sudo ansible-playbook -i "localhost," -c local containernet/ansible/install.yml
 sudo pip install -U git+https://github.com/EsauM10/fogbed.git
 ```
 
+
 ## Get Started
 After having installed fogbed you can start an example topology, copy the example in `examples/sensors/sensors.py` and run with:
 ```
@@ -100,6 +101,8 @@ There are three types of resource models in fogbed right now: `EdgeResourceModel
 ### Containers
 You can also create containers with custom resource restrictions like in [Containernet](https://github.com/containernet/containernet/wiki#method-containernetadddocker)
 
+
+
 ```python
 from fogbed import Container
 
@@ -129,3 +132,10 @@ d1 = Container('d1', ip='10.0.0.1', resources=HardwareResources(cu=2.0, mu=128))
 ```
 
 
+## Preparing Blockchain Test 
+
+
+#### Build Indy Images
+```
+cd indy/images/baseimage && make 
+```
