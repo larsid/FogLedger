@@ -26,6 +26,7 @@ sudo ansible-playbook -i "localhost," -c local containernet/ansible/install.yml
 sudo pip install -U git+https://github.com/EsauM10/fogbed.git
 ```
 
+
 ## Get Started
 After having installed fogbed you can start an example topology, copy the example in `examples/sensors/sensors.py` and run with:
 ```
@@ -127,3 +128,10 @@ finally:
 ```
 In this example we are checking the command `ifconfig` inside the host `d1` that is inside the Virtual Instance `cloud`, and then running the ping command to test the reachability between `d1` and `d6`.
 
+## Preparing Blockchain Test 
+
+
+#### Build Indy Images
+```
+cd indy/images/baseimage && make 
+```
