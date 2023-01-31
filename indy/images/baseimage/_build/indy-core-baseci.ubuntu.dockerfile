@@ -38,3 +38,6 @@ RUN apt-get update -y && apt-get install -y \
         python3-psutil=${python3_psutil_ver} \
         python3-pympler=${python3_pympler_ver} \
         vim
+
+RUN awk '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"sandbox\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
+RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
