@@ -13,7 +13,7 @@ exp = FogbedExperiment()
 if(__name__=='__main__'):
     cloud   = exp.add_virtual_instance('cloud')
     fog   = exp.add_virtual_instance('fog',   FogResourceModel(max_cu=4, max_mu=512))
-    d1 = Container('d1', ip='10.0.0.1', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
+    d1 = Container('d1', ip='10.0.0.5', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
     d2 = Container('d2', ip='10.0.0.2', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
     d3 = Container('d3', ip='10.0.0.3', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
     d4 = Container('d4', ip='10.0.0.4', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
