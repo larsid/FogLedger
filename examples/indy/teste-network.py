@@ -1,7 +1,7 @@
 from typing import List
 from fogbed import (
     FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel,
+    CloudResourceModel, EdgeResourceModel, FogResourceModel,VirtualInstance,
     setLogLevel
 )
 
@@ -9,33 +9,53 @@ setLogLevel('info')
 
 exp = FogbedExperiment()
 
+def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
+    for device in devices:
+        exp.add_link(device, cloud)
+
+def create_devices(number: int) -> List[VirtualInstance]:
+    return [exp.add_virtual_instance(f'edge{i+1}') for i in range(number)]
+
+def create_nodes(legers: List[VirtualInstance]):
+    nodes = []
+    for i, ledger in enumerate(legers):
+        name = f'node{i+1}'
+        node = Container(
+                name=name, 
+                dimage='hyperledger/indy-core-baseci:0.0.4',
+            )
+        nodes.append(node)
+        exp.add_docker(
+            container=node,
+            datacenter=ledger)
+    return nodes
 
 if(__name__=='__main__'):
-    cloud   = exp.add_virtual_instance('cloud')
-    fog   = exp.add_virtual_instance('fog',   FogResourceModel(max_cu=4, max_mu=512))
-    d1 = Container('d1', ip='10.0.0.5', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
-    d2 = Container('d2', ip='10.0.0.2', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
-    d3 = Container('d3', ip='10.0.0.3', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
-    d4 = Container('d4', ip='10.0.0.4', dimage='hyperledger/indy-core-baseci:0.0.4', resources=Resources.SMALL)
-    exp.add_docker(d1, cloud)
-    exp.add_docker(d2, cloud)
-    exp.add_docker(d3, cloud)
-    exp.add_docker(d4, cloud)
 
+    cloud   = exp.add_virtual_instance('cloud')
+    ledgers = create_devices(5)
+
+    nodes = create_nodes(ledgers)
+    
+    create_links(cloud, ledgers)
+    print(nodes)
 
 
     try:
         exp.start() 
-        print(d1.cmd('ifconfig'))
-        print(d1.cmd(f'ping -c 4 {d2.ip}'))
-        print(d1.cmd(f'generate_indy_pool_transactions --nodes 4 --clients 5 --nodeNum 1 --ips {d1.ip},{d2.ip},{d3.ip},{d4.ip}'))
-        print(d2.cmd(f'generate_indy_pool_transactions --nodes 4 --clients 5 --nodeNum 2 --ips {d1.ip},{d2.ip},{d3.ip},{d4.ip}'))
-        print(d3.cmd(f'generate_indy_pool_transactions --nodes 4 --clients 5 --nodeNum 3 --ips {d1.ip},{d2.ip},{d3.ip},{d4.ip}'))
-        print(d4.cmd(f'generate_indy_pool_transactions --nodes 4 --clients 5 --nodeNum 4 --ips {d1.ip},{d2.ip},{d3.ip},{d4.ip}'))
-        d1.cmd('start_indy_node Node1 0.0.0.0 9701 0.0.0.0 9702 > output.log 2>&1 &')
-        d2.cmd('start_indy_node Node2 0.0.0.0 9703 0.0.0.0 9704 > output.log 2>&1 &')
-        d3.cmd('start_indy_node Node3 0.0.0.0 9705 0.0.0.0 9706 > output.log 2>&1 &')
-        d4.cmd('start_indy_node Node4 0.0.0.0 9707 0.0.0.0 9708 > output.log 2>&1 &')
+        
+        nodes[0].cmd(f'generate_indy_pool_transactions --nodes 5 --clients 5 --nodeNum 1 --ips {nodes[0].ip},{nodes[1].ip},{nodes[2].ip},{nodes[3].ip},{nodes[4].ip}')
+        nodes[1].cmd(f'generate_indy_pool_transactions --nodes 5 --clients 5 --nodeNum 2 --ips {nodes[0].ip},{nodes[1].ip},{nodes[2].ip},{nodes[3].ip},{nodes[4].ip}')
+        nodes[2].cmd(f'generate_indy_pool_transactions --nodes 5 --clients 5 --nodeNum 3 --ips {nodes[0].ip},{nodes[1].ip},{nodes[2].ip},{nodes[3].ip},{nodes[4].ip}')
+        nodes[3].cmd(f'generate_indy_pool_transactions --nodes 5 --clients 5 --nodeNum 4 --ips {nodes[0].ip},{nodes[1].ip},{nodes[2].ip},{nodes[3].ip},{nodes[4].ip}')
+        nodes[4].cmd(f'generate_indy_pool_transactions --nodes 5 --clients 5 --nodeNum 5 --ips {nodes[0].ip},{nodes[1].ip},{nodes[2].ip},{nodes[3].ip},{nodes[4].ip}')
+        
+        
+        nodes[0].cmd(f'start_indy_node Node1 {nodes[0].ip} 9701 {nodes[0].ip} 9702 > output.log 2>&1 &')
+        nodes[1].cmd(f'start_indy_node Node2 {nodes[1].ip} 9703 {nodes[1].ip} 9704 > output.log 2>&1 &')
+        nodes[2].cmd(f'start_indy_node Node3 {nodes[2].ip} 9705 {nodes[2].ip} 9706 > output.log 2>&1 &')
+        nodes[3].cmd(f'start_indy_node Node4 {nodes[3].ip} 9707 {nodes[3].ip} 9708 > output.log 2>&1 &')
+        nodes[4].cmd(f'start_indy_node Node5 {nodes[4].ip} 9709 {nodes[4].ip} 9710 > output.log 2>&1 &')
         exp.start_cli()
         input('Press any key...')
     except Exception as ex: 
