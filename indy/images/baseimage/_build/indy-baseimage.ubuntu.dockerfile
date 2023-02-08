@@ -42,3 +42,5 @@ COPY _build/indy-baseimage.version /
 RUN indy_image_clean
 
 CMD /bin/bash
+
+EXPOSE 9701 9702
