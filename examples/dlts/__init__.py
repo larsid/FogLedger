@@ -1,1 +1,1 @@
-from fogbed.dlts.indy import IndyBasic
+from indy import IndyBasic

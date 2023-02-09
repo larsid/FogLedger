@@ -47,5 +47,5 @@ class IndyBasic:
         for i, node in enumerate(self.nodes):
             node.cmd(f'generate_indy_pool_transactions --nodes {count_nodes} --clients {count_nodes} --nodeNum {i+1} --ips {ips}')
         for i, node in enumerate(self.nodes):
-            node.cmd(f'start_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
+            node.cmd(f'start_indy_node Node{i+1} {node.ip} 970{i*2+1} {node.ip} 970{(i+1)*2} > output.log 2>&1 &')
         
