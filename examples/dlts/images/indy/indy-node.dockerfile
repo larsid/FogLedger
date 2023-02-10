@@ -1,4 +1,63 @@
-FROM __NS__/indy-baseci:0.0.4
+FROM ubuntu:xenial as indy-baseimage
+LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
+
+RUN apt-get update && apt-get dist-upgrade -y
+
+# very common packages
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    vim \
+    apt-transport-https \
+    ca-certificates \
+    apt-utils 
+    
+RUN apt install -y \
+    net-tools \
+    iputils-ping \
+    iproute
+# python
+RUN apt-get update && apt-get install -y \
+    python3.5 \
+    python3-pip \
+    python-setuptools
+    
+# pypi based packages
+RUN pip3 install -U\
+    "pip <10.0.0" \
+    "setuptools<=50.3.2"
+
+# needs to be installed separately and pinned to version 20.0.25 to be compatible with Python3.5 and packages like zipp==1.2.0
+RUN pip3 install -U \
+    'virtualenv==20.0.35'
+
+
+RUN ln -s /usr/bin/pip3 /usr/bin/pip
+
+COPY scripts/clean.sh /usr/local/bin/indy_image_clean
+RUN chmod 755 /usr/local/bin/indy_image_clean
+
+
+RUN indy_image_clean
+
+CMD /bin/bash
+
+
+FROM indy-baseimage as indy-baseci
+LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
+
+# indy repos
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 && \
+    echo "deb https://repo.sovrin.org/deb xenial master" >> /etc/apt/sources.list && \
+    apt-get update
+
+COPY scripts/user.sh /usr/local/bin/indy_ci_add_user
+RUN bash -c "chmod 755 /usr/local/bin/indy_ci_add_user"
+
+
+RUN indy_image_clean
+
+FROM indy-baseci
 LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
 
 # indy repos
@@ -8,7 +67,6 @@ RUN echo "deb https://repo.sovrin.org/sdk/deb xenial master" >> /etc/apt/sources
 # set highest priority for indy sdk packages in core repo
 COPY indy-core-repo.preferences /etc/apt/preferences.d/indy-core-repo
 
-COPY __VERSION_FILE__ /
 
 RUN indy_image_clean
 ARG uid=1000

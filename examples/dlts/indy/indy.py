@@ -29,7 +29,7 @@ class IndyBasic:
             name = f'node{i+1}'
             node = Container(
                     name=name, 
-                    dimage='hyperledger/indy-core-baseci:0.0.4',
+                    dimage='indy-node',
                     ip=f'10.0.0.{i+2}'
                 )
             nodes.append(node)
@@ -45,7 +45,7 @@ class IndyBasic:
         count_nodes = len(self.nodes)
         ips = ",".join(ips)
         for i, node in enumerate(self.nodes):
-            node.cmd(f'generate_indy_pool_transactions --nodes {count_nodes} --clients {count_nodes} --nodeNum {i+1} --ips {ips}')
-        for i, node in enumerate(self.nodes):
-            node.cmd(f'start_indy_node Node{i+1} {node.ip} 970{i*2+1} {node.ip} 970{(i+1)*2} > output.log 2>&1 &')
+            print(node.cmd(f'init_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702'))
+        # for i, node in enumerate(self.nodes):
+        #     node.cmd(f'start_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
         
