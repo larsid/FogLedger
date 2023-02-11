@@ -48,9 +48,6 @@ class IndyBasic:
         
 
     def start_network(self):
-        ips = list(map(lambda node: node.ip, self.nodes))
-        count_nodes = len(self.nodes)
-        ips = ",".join(ips)
         with open('./indy/tmp/genesis-validators.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key'])
