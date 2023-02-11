@@ -50,10 +50,11 @@ class IndyBasic:
     def start_network(self):
         with open('./indy/tmp/genesis-validators.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key'])
+            writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey'])
             for i, node in enumerate(self.nodes):
                 aux = node.cmd(f'init_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702')
                 lines = aux.splitlines()
-                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4]])
+                print(aux)
+                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], lines[2].split(' ')[4], lines[4].split(' ')[3]])
         for i, node in enumerate(self.nodes):
                 print(node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/genesis-validators.csv --trustees /tmp/indy/trustees.csv'))
