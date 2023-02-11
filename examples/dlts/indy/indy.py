@@ -29,8 +29,6 @@ class IndyBasic:
         return [self.exp.add_virtual_instance(f'edge{i+1}') for i in range(number)]
 
 
-   
-
     def _create_nodes(self):
         nodes = []
         for i, ledger in enumerate(self.ledgers):
@@ -58,4 +56,3 @@ class IndyBasic:
                 aux = node.cmd(f'init_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702')
                 lines = aux.splitlines()
                 writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4]])
-        
