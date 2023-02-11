@@ -3,6 +3,7 @@ from fogbed import (
 )
 from typing import List
 import csv
+import os
 
 class IndyBasic:
     def __init__(
@@ -35,7 +36,8 @@ class IndyBasic:
             name = f'node{i+1}'
             node = Container(
                     name=name, 
-                    dimage='indy-node'
+                    dimage='indy-node',
+                    volumes=[f'{os.path.abspath("indy/tmp/")}:/tmp/indy/', f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/']
                 )
             nodes.append(node)
             self.exp.add_docker(
@@ -49,10 +51,12 @@ class IndyBasic:
         ips = list(map(lambda node: node.ip, self.nodes))
         count_nodes = len(self.nodes)
         ips = ",".join(ips)
-        with open('./indy/tmp/genesis-validators.txt', 'w', newline='') as file:
+        with open('./indy/tmp/genesis-validators.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key'])
             for i, node in enumerate(self.nodes):
                 aux = node.cmd(f'init_indy_node Node{i+1} {node.ip} 9701 {node.ip} 9702')
                 lines = aux.splitlines()
                 writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4]])
+        for i, node in enumerate(self.nodes):
+                print(node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/genesis-validators.csv --trustees /tmp/indy/trustees.csv'))
