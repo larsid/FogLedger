@@ -21,7 +21,7 @@ if(__name__=='__main__'):
     cli   = exp.add_virtual_instance('cli')
     cloud = exp.add_virtual_instance('cloud')
     ledgers, nodes = indy.create_ledgers()
-    create_links(cloud, ledgers)
+    # create_links(cloud, ledgers)
 
     indy_cli = Container(
             name='cli', 
