@@ -1,6 +1,6 @@
 FROM ubuntu:xenial as indy-baseimage
 LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
-
+ENV NETWORK_NAME=fogbed
 RUN apt-get update && apt-get dist-upgrade -y
 
 # very common packages
@@ -96,6 +96,6 @@ RUN apt-get update -y && apt-get install -y \
         python3-psutil=${python3_psutil_ver} \
         python3-pympler=${python3_pympler_ver} \
         vim
-
-RUN awk '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"sandbox\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
+RUN awk -v var="${NETWORK_NAME}" '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"" var "\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
 RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
+RUN mkdir /var/lib/indy/${NETWORK_NAME}
