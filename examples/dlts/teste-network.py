@@ -7,8 +7,6 @@ from fogbed import (
 from indy.indy import (IndyBasic)
 setLogLevel('info')
 
-exp = FogbedExperiment()
-indy = IndyBasic(exp=exp, number_nodes=15)
 
 def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
     for device in devices:
@@ -18,14 +16,26 @@ def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
 
 if(__name__=='__main__'):
 
+    exp = FogbedExperiment()
+
+     # Define Indy network in cloud
+    indyCloud = IndyBasic(exp=exp, number_nodes=4)
     cloud = exp.add_virtual_instance('cloud')
-    ledgers, nodes = indy.create_ledgers()
+    ledgers, nodes = indyCloud.create_ledgers('cloud')
     create_links(cloud, ledgers)
+
+    # Define Indy network in fog
+    indyFog = IndyBasic(exp=exp, number_nodes=4)
+    fog = exp.add_virtual_instance('fog')
+    ledgers, nodes = indyFog.create_ledgers('fog')
+    create_links(fog, ledgers)
 
     try:
         exp.start() 
-        indy.start_network()
-        print(nodes[0].cmd(f'ping -c 4 {nodes[1].ip}'))
+
+        indyCloud.start_network()
+        indyFog.start_network()
+
         exp.start_cli()
         input('Press any key...')
     except Exception as ex: 
