@@ -1,101 +1,51 @@
-FROM ubuntu:xenial as indy-baseimage
-LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
-ENV NETWORK_NAME=fogbed
-RUN apt-get update && apt-get dist-upgrade -y
+FROM ubuntu:20.04
 
-# very common packages
-RUN apt-get update && apt-get install -y \
-    git \
-    wget \
-    vim \
+ENV NETWORK_NAME=fogbed
+RUN apt-get update -y && apt-get install -y \
     apt-transport-https \
     ca-certificates \
-    apt-utils 
-    
-RUN apt install -y \
+    gnupg2 \
+    ## ToDo remove unused packages
+    libgflags-dev \
+    libsnappy-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblz4-dev \
+    libgflags-dev \
+    python3-pip \
     net-tools \
     iputils-ping \
-    iproute
-# python
-RUN apt-get update && apt-get install -y \
-    python3.5 \
-    python3-pip \
-    python-setuptools
-    
-# pypi based packages
-RUN pip3 install -U\
-    "pip <10.0.0" \
-    "setuptools<=50.3.2"
+    iproute2
 
-# needs to be installed separately and pinned to version 20.0.25 to be compatible with Python3.5 and packages like zipp==1.2.0
+# Bionic-security for libssl1.0.0
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3B4FE6ACC0B21F32 \
+    && echo "deb http://security.ubuntu.com/ubuntu bionic-security main"  >> /etc/apt/sources.list
+
+# Sovrin
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CE7709D068DB5E88 \
+    && bash -c 'echo "deb https://repo.sovrin.org/deb bionic master" >> /etc/apt/sources.list'
+
+# Hyperledger Artifactory
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9692C00E657DDE61 \
+    && echo "deb https://hyperledger.jfrog.io/artifactory/indy focal rc" >> /etc/apt/sources.list \
+    # Prioritize packages from hyperledger.jfrog.io
+    && printf '%s\n%s\n%s\n' 'Package: *' 'Pin: origin hyperledger.jfrog.io' 'Pin-Priority: 1001' >> /etc/apt/preferences
+
 RUN pip3 install -U \
-    'virtualenv==20.0.35'
+    # Required by setup.py
+    'setuptools==50.3.2'
 
-
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-
-COPY scripts/clean.sh /usr/local/bin/indy_image_clean
-RUN chmod 755 /usr/local/bin/indy_image_clean
-
-
-RUN indy_image_clean
-
-CMD /bin/bash
-
-
-FROM indy-baseimage as indy-baseci
-LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
-
-# indy repos
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 && \
-    echo "deb https://repo.sovrin.org/deb xenial master" >> /etc/apt/sources.list && \
-    apt-get update
-
-COPY scripts/user.sh /usr/local/bin/indy_ci_add_user
-RUN bash -c "chmod 755 /usr/local/bin/indy_ci_add_user"
-
-
-RUN indy_image_clean
-
-FROM indy-baseci
-LABEL maintainer="Hyperledger <hyperledger-indy@lists.hyperledger.org>"
-
-# indy repos
-RUN echo "deb https://repo.sovrin.org/sdk/deb xenial master" >> /etc/apt/sources.list && \
-    apt-get update
-
-# set highest priority for indy sdk packages in core repo
-COPY indy-core-repo.preferences /etc/apt/preferences.d/indy-core-repo
-
-
-RUN indy_image_clean
-ARG uid=1000
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88 || \
-	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CE7709D068DB5E88
-ARG indy_stream=master
-RUN echo "deb https://repo.sovrin.org/deb xenial $indy_stream" >> /etc/apt/sources.list
-
-RUN useradd -ms /bin/bash -u $uid indy
-
-ARG indy_plenum_ver=1.12.1~dev989
-ARG indy_node_ver=1.12.1~dev1172
-ARG python3_indy_crypto_ver=0.4.5
-ARG indy_crypto_ver=0.4.5
-ARG python3_pyzmq_ver=18.1.0
-ARG python3_orderedset_ver=2.0
-ARG python3_psutil_ver=5.4.3
-ARG python3_pympler_ver=0.5
 
 RUN apt-get update -y && apt-get install -y \
-        python3-pyzmq=${python3_pyzmq_ver} \
-        indy-plenum=${indy_plenum_ver} \
-        indy-node=${indy_node_ver} \
-        python3-indy-crypto=${python3_indy_crypto_ver} \
-        libindy-crypto=${indy_crypto_ver} \
-        python3-orderedset=${python3_orderedset_ver} \
-        python3-psutil=${python3_psutil_ver} \
-        python3-pympler=${python3_pympler_ver} \
-        vim
+    indy-node="1.13.2~rc5" \
+    indy-plenum="1.13.1~rc3" \
+    ursa="0.3.2-1" \
+    python3-pyzmq="22.3.0" \
+    rocksdb="5.8.8" \
+    python3-importlib-metadata="3.10.1" \
+    && rm -rf /var/lib/apt/lists/* \
+    # fix path to libursa
+    && ln -s /usr/lib/ursa/libursa.so /usr/lib/libursa.so
 RUN awk -v var="${NETWORK_NAME}" '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"" var "\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
 RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
