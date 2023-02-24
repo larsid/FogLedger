@@ -5,6 +5,7 @@ from typing import List
 import csv
 import os
 import uuid
+import re
 
 class IndyBasic:
     def __init__(
@@ -35,15 +36,15 @@ class IndyBasic:
         nodes = []
 
         # Cli to create seeds to nodes
-        cli = self.exp.add_virtual_instance(f'{prefix}_cli')
+        self.cli_instance = self.exp.add_virtual_instance(f'{prefix}_cli')
         self.indy_cli = Container(
             name=f'{prefix}_cli', 
             dimage='indy-cli',
-            volumes=[f'{os.path.abspath("indy/tmp/")}:/scripts/', f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/']
+            volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/")}:/tmp/indy/']
             )
         self.exp.add_docker(
                 container=self.indy_cli,
-                datacenter=cli)
+                datacenter=self.cli_instance)
         for i, ledger in enumerate(self.ledgers):
             name = f'{prefix}{i+1}'
             node = Container(
@@ -60,16 +61,24 @@ class IndyBasic:
         
 
     def start_network(self):
+        self.indy_cli.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
         genesis_file_name = uuid.uuid4()
-        print(self.indy_cli.cmd('indy-cli /opt/indy/scripts/create-did.conf'))
         with open(f'./indy/tmp/{genesis_file_name}.csv', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey'])
             for i, node in enumerate(self.nodes):
+                seed = self.indy_cli.cmd("pwgen -s 32 1")
+                info_cli = self.indy_cli.cmd(f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
+                matches = re.findall(r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
+                print(matches)
+                did = ''
+                verkey = ''
+                if matches:
+                    did = matches[0][0]
+                    verkey = matches[0][1]
                 aux = node.cmd(f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
-                print(aux)
                 lines = aux.splitlines()
-                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], 'seed', lines[4].split(' ')[3]])
+                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey])
         for i, node in enumerate(self.nodes):
                 node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
                 node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
