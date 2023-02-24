@@ -67,8 +67,9 @@ class IndyBasic:
             writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey'])
             for i, node in enumerate(self.nodes):
                 aux = node.cmd(f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
+                print(aux)
                 lines = aux.splitlines()
-                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], lines[2].split(' ')[4], lines[4].split(' ')[3]])
+                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], 'seed', lines[4].split(' ')[3]])
         for i, node in enumerate(self.nodes):
                 node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
                 node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')

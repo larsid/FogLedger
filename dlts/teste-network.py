@@ -19,7 +19,7 @@ if(__name__=='__main__'):
     exp = FogbedExperiment()
 
      # Define Indy network in cloud
-    indyCloud = IndyBasic(exp=exp, number_nodes=4)
+    indyCloud = IndyBasic(exp=exp, number_nodes=8)
     cloud = exp.add_virtual_instance('cloud')
     ledgers, nodes = indyCloud.create_ledgers('cloud')
     create_links(cloud, ledgers)
