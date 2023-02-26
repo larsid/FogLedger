@@ -11,7 +11,7 @@ class IndyBasic:
     def __init__(
         self,
         exp: FogbedExperiment,
-        number_nodes: int = 5
+        number_nodes: int = 4
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container]  = []
