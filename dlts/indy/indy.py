@@ -6,6 +6,7 @@ import csv
 import os
 import uuid
 import re
+import numpy
 
 class IndyBasic:
     def __init__(
@@ -63,23 +64,23 @@ class IndyBasic:
     def start_network(self):
         self.indy_cli.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
         genesis_file_name = uuid.uuid4()
-        with open(f'./indy/tmp/{genesis_file_name}.csv', 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey'])
-            for i, node in enumerate(self.nodes):
-                seed = self.indy_cli.cmd("pwgen -s 32 1")
-                info_cli = self.indy_cli.cmd(f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
-                matches = re.findall(r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
-                print(matches)
-                did = ''
-                verkey = ''
-                if matches:
-                    did = matches[0][0]
-                    verkey = matches[0][1]
-                aux = node.cmd(f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
-                lines = aux.splitlines()
-                writer.writerow([node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey])
+        array_genesis = numpy.array([['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey']])
         for i, node in enumerate(self.nodes):
+            seed = self.indy_cli.cmd("pwgen -s 32 1")
+            info_cli = self.indy_cli.cmd(f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
+            matches = re.findall(r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
+            print(matches)
+            did = ''
+            verkey = ''
+            if matches:
+                did = matches[0][0]
+                verkey = matches[0][1]
+            aux = node.cmd(f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
+            lines = aux.splitlines()
+            array_genesis = numpy.append(array_genesis,[[node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
+        print(array_genesis)
+        for i, node in enumerate(self.nodes):
+                numpy.savetxt(f'indy/tmp/{genesis_file_name}.txt', array_genesis, delimiter=',', fmt='%s')
                 node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
                 node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
                 node.cmd(f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
