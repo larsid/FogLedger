@@ -49,3 +49,4 @@ RUN apt-get update -y && apt-get install -y \
 RUN awk -v var="${NETWORK_NAME}" '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"" var "\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
 RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
+RUN mkdir /tmp/indy/

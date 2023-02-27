@@ -41,7 +41,7 @@ class IndyBasic:
         self.indy_cli = Container(
             name=f'{prefix}_cli', 
             dimage='indy-cli',
-            volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/")}:/tmp/indy/']
+            volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/']
             )
         self.exp.add_docker(
                 container=self.indy_cli,
@@ -51,7 +51,7 @@ class IndyBasic:
             node = Container(
                     name=name, 
                     dimage='indy-node',
-                    volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/")}:/tmp/indy/']
+                    volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/trustees.csv")}:/tmp/indy/trustees.csv']
                 )
             nodes.append(node)
             self.exp.add_docker(
@@ -69,7 +69,6 @@ class IndyBasic:
             seed = self.indy_cli.cmd("pwgen -s 32 1")
             info_cli = self.indy_cli.cmd(f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
             matches = re.findall(r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
-            print(matches)
             did = ''
             verkey = ''
             if matches:
@@ -78,9 +77,11 @@ class IndyBasic:
             aux = node.cmd(f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
             lines = aux.splitlines()
             array_genesis = numpy.append(array_genesis,[[node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
-        print(array_genesis)
+        rows = ["{},{},{},{},{},{},{},{},{},{},{}".format(a,b,c,d,e,f,g,h,i,j,k) for a,b,c,d,e,f,g,h,i,j,k in array_genesis]
+        text= "\n".join(rows)
+        print(text)
         for i, node in enumerate(self.nodes):
-                numpy.savetxt(f'indy/tmp/{genesis_file_name}.txt', array_genesis, delimiter=',', fmt='%s')
-                node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
-                node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
-                node.cmd(f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
+            print(node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
+            print(node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
+            node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
+            node.cmd(f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
