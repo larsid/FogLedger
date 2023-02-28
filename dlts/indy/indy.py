@@ -18,6 +18,7 @@ class IndyBasic:
         self.nodes: List[Container]  = []
         self.number_nodes: int = number_nodes
         self.exp = exp
+        self.genesis_file_path = ''
         
 
     def create_ledgers(self, prefix: str = 'node'):
@@ -25,7 +26,7 @@ class IndyBasic:
         self.nodes = self._create_nodes(prefix)
         return self.ledgers, self.nodes
 
-    def create_links(self,target: VirtualInstance, devices: List[VirtualInstance]):
+    def create_links(self,target: VirtualInstance, devices: List[VirtualInstance]) -> None:
         for device in devices:
             self.exp.add_link(device, target)
 
@@ -61,7 +62,7 @@ class IndyBasic:
 
         
 
-    def start_network(self):
+    def start_network(self) -> None:
         self.indy_cli.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
         genesis_file_name = uuid.uuid4()
         array_genesis = numpy.array([['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey']])
@@ -79,9 +80,16 @@ class IndyBasic:
             array_genesis = numpy.append(array_genesis,[[node.name,node.name,node.ip,9701,node.ip,9702,lines[5].split(' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
         rows = ["{},{},{},{},{},{},{},{},{},{},{}".format(a,b,c,d,e,f,g,h,i,j,k) for a,b,c,d,e,f,g,h,i,j,k in array_genesis]
         text= "\n".join(rows)
-        print(text)
+        self.genesis_file_path = f'indy/tmp/{genesis_file_name}.csv'
+        numpy.savetxt(self.genesis_file_path, array_genesis, delimiter=',', fmt='%s')
         for i, node in enumerate(self.nodes):
             print(node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
             print(node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
             node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
             node.cmd(f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
+    
+    def request_genesis_file(self) -> str:
+        genesis_file = open(self.genesis_file_path, 'r')
+        data = genesis_file.read()
+        genesis_file.close()
+        return data

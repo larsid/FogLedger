@@ -23,17 +23,20 @@ if(__name__=='__main__'):
     ledgers, nodes = indyCloud.create_ledgers('cloud')
     create_links(cloud, ledgers)
     exp.add_link(cloud, indyCloud.cli_instance)
-    # Define Indy network in fog
-    # indyFog = IndyBasic(exp=exp, number_nodes=3)
-    # fog = exp.add_virtual_instance('fog')
-    # ledgers, nodes = indyFog.create_ledgers('fog')
-    # create_links(fog, ledgers)
 
+
+    # Define Indy network in fog
+    indyFog = IndyBasic(exp=exp, number_nodes=3)
+    fog = exp.add_virtual_instance('fog')
+    ledgers, nodes = indyFog.create_ledgers('fog')
+    create_links(fog, ledgers)
+    
     try:
         exp.start() 
 
         indyCloud.start_network()
-        # indyFog.start_network()
+
+        indyFog.start_network()
 
         exp.start_cli()
         input('Press any key...')

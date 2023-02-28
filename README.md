@@ -51,5 +51,5 @@ cd dlts
 ```
 
 ```
-sudo python3 test-network.py
+sudo python3 test-distributed-network
 ```
