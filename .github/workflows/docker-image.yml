@@ -23,7 +23,7 @@ jobs:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/indy-node.dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed/indy-node:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-node:latest
       -
         name: Build and push Cli
         uses: docker/build-push-action@v4
@@ -31,4 +31,4 @@ jobs:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/indy-cli.dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed/indy-cli:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-cli:latest
