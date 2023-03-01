@@ -1,18 +1,17 @@
-name: Docker Image CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+name: publish
+on: [push]
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file dlts/images/indy/indy-node.dockerfile --tag mnplima/indy-node:$(date +%s)
+publish-hello-docker-image:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v2
+- name: Login to GitHub Container Registry
+uses: docker/login-action@v1
+with:
+registry: mnplima
+username: mnplima
+password: ${{ secrets.DOCKER_TOKEN }}
+- name: Build the hello-docker Docker image
+run: |
+       docker build -f ./dlts/images/indy/indy-node.dockerfile --tag mnplima/fogbed/indy-node:latest ./dlts/images/indy/
+       docker push mnplima/fogbed/indy-node:latest
