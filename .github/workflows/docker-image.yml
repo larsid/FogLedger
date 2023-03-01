@@ -17,10 +17,18 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Build and push
+        name: Build and push Node
         uses: docker/build-push-action@v4
         with:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/indy-node.dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USER }}/indy-node:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed/indy-node:latest
+      -
+        name: Build and push Cli
+        uses: docker/build-push-action@v4
+        with:
+          context: ./dlts/images/indy
+          file: ./dlts/images/indy/indy-cli.dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed/indy-cli:latest
