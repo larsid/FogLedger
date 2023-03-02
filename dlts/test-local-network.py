@@ -5,6 +5,8 @@ from fogbed import (
     setLogLevel,
 )
 from indy.indy import (IndyBasic)
+import time
+
 setLogLevel('info')
 
 def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
@@ -30,13 +32,34 @@ if(__name__=='__main__'):
     fog = exp.add_virtual_instance('fog')
     ledgers, nodes = indyFog.create_ledgers('fog')
     create_links(fog, ledgers)
+
+    webserverContainer = Container(
+            name='webserver', 
+            dimage='webserver',
+            port_bindings={9000: 9000},
+            environment={
+                'MAX_FETCH':50000,
+                'RESYNC_TIME':120,
+                'REGISTER_NEW_DIDS':True,
+                'LEDGER_INSTANCE_NAME':"fogbed",
+                'INFO_SITE_TEXT':"Node Container @ GitHub",
+                'INFO_SITE_URL':"https://github.com/hyperledger/indy-node-container",
+                'LEDGER_SEED':"000000000000000000000000Steward1"
+                }
+            )
+    instanceWebserver = exp.add_docker(
+            container=webserverContainer,
+            datacenter=cloud)
     
     try:
         exp.start() 
 
         indyCloud.start_network()
-
         indyFog.start_network()
+
+        webserverContainer.cmd(f'echo "{indyCloud.request_genesis_file()}" >> /var/lib/indy/fogbed/pool_transactions_genesis')
+        time.sleep(10)
+        print(webserverContainer.cmd('./scripts/start_webserver.sh'))
 
         exp.start_cli()
         input('Press any key...')

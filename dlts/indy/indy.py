@@ -41,7 +41,7 @@ class IndyBasic:
         self.cli_instance = self.exp.add_virtual_instance(f'{prefix}_cli')
         self.indy_cli = Container(
             name=f'{prefix}_cli', 
-            dimage='indy-cli',
+            dimage='mnplima/fogbed-indy-cli',
             volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/']
             )
         self.exp.add_docker(
@@ -51,7 +51,7 @@ class IndyBasic:
             name = f'{prefix}{i+1}'
             node = Container(
                     name=name, 
-                    dimage='indy-node',
+                    dimage='mnplima/fogbed-indy-node',
                     volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/trustees.csv")}:/tmp/indy/trustees.csv']
                 )
             nodes.append(node)
