@@ -52,7 +52,11 @@ class IndyBasic:
             node = Container(
                     name=name, 
                     dimage='mnplima/fogbed-indy-node',
-                    volumes=[f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', f'{os.path.abspath("indy/tmp/trustees.csv")}:/tmp/indy/trustees.csv']
+                    volumes=[
+                        f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', 
+                        f'{os.path.abspath("indy/tmp/trustees.csv")}:/tmp/indy/trustees.csv',
+                        f'{os.path.abspath(f"indy/tmp/{prefix}/node{i+1}")}:/var/lib/indy/'
+                    ]
                 )
             nodes.append(node)
             self.exp.add_docker(

@@ -6,6 +6,7 @@ from fogbed import (
 )
 from indy.indy import (IndyBasic)
 import time
+import os
 
 setLogLevel('info')
 
@@ -36,7 +37,7 @@ if(__name__=='__main__'):
     webserverContainer = Container(
             name='webserver', 
             dimage='webserver',
-            port_bindings={9000: 9000},
+            port_bindings={8000:8000},
             environment={
                 'MAX_FETCH':50000,
                 'RESYNC_TIME':120,
@@ -44,12 +45,16 @@ if(__name__=='__main__'):
                 'LEDGER_INSTANCE_NAME':"fogbed",
                 'INFO_SITE_TEXT':"Node Container @ GitHub",
                 'INFO_SITE_URL':"https://github.com/hyperledger/indy-node-container",
-                'LEDGER_SEED':"000000000000000000000000Steward1"
-                }
+                'LEDGER_SEED':"000000000000000000000000Steward1",
+                'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis" 
+            },
+            volumes=[
+                f'{os.path.abspath(f"indy/tmp/cloud/node1")}:/var/lib/indy/'
+            ]
             )
     instanceWebserver = exp.add_docker(
             container=webserverContainer,
-            datacenter=cloud)
+            datacenter=indyCloud.cli_instance)
     
     try:
         exp.start() 
@@ -59,7 +64,7 @@ if(__name__=='__main__'):
 
         webserverContainer.cmd(f'echo "{indyCloud.request_genesis_file()}" >> /var/lib/indy/fogbed/pool_transactions_genesis')
         time.sleep(10)
-        print(webserverContainer.cmd('./scripts/start_webserver.sh'))
+        # print(webserverContainer.cmd('./scripts/start_webserver.sh'))
 
         exp.start_cli()
         input('Press any key...')
