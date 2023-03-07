@@ -51,5 +51,5 @@ cd dlts
 ```
 
 ```
-sudo python3 test-local-network
+sudo python3 test-local-network.py
 ```
