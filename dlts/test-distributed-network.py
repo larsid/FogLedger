@@ -5,6 +5,8 @@ from fogbed import (
     setLogLevel, FogbedDistributedExperiment, Worker
 )
 import time
+import os
+
 from indy.indy import (IndyBasic)
 setLogLevel('info')
 
@@ -20,14 +22,14 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
 
 if(__name__=='__main__'):
 
-    exp = FogbedDistributedExperiment(controller_ip='192.168.0.104', controller_port=6633)
-    worker1 = exp.add_worker(ip='192.168.0.104')
-    worker2 = exp.add_worker(ip='192.168.0.105')
+    exp = FogbedDistributedExperiment(controller_ip='192.168.0.105', controller_port=6633)
+    worker1 = exp.add_worker(ip='192.168.0.105')
+    worker2 = exp.add_worker(ip='192.168.0.103')
     webserver = exp.add_virtual_instance('webserver')
     webserverContainer = Container(
             name='webserver', 
             dimage='webserver',
-            port_bindings={9000: 9000},
+            port_bindings={8000:8000},
             environment={
                 'MAX_FETCH':50000,
                 'RESYNC_TIME':120,
@@ -35,8 +37,12 @@ if(__name__=='__main__'):
                 'LEDGER_INSTANCE_NAME':"fogbed",
                 'INFO_SITE_TEXT':"Node Container @ GitHub",
                 'INFO_SITE_URL':"https://github.com/hyperledger/indy-node-container",
-                'LEDGER_SEED':"000000000000000000000000Steward1"
-                }
+                'LEDGER_SEED':"000000000000000000000000Steward1",
+                'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis" 
+            },
+            volumes=[
+                f'{os.path.abspath(f"indy/tmp/cloud/")}:/var/lib/indy/'
+            ]
             )
     exp.add_docker(
             container=webserverContainer,
@@ -54,9 +60,7 @@ if(__name__=='__main__'):
     try:
         exp.start() 
         indyCloud.start_network()
-        webserverContainer.cmd(f'echo "{indyCloud.request_genesis_file()}" >> /var/lib/indy/fogbed/pool_transactions_genesis')
-        time.sleep(10)
-        print(webserverContainer.cmd('./scripts/start_webserver.sh'))
+        # print(webserverContainer.cmd('./scripts/start_webserver.sh'))
         
         input('Press any key...')
     except Exception as ex: 

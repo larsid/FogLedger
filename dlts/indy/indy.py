@@ -55,7 +55,7 @@ class IndyBasic:
                     volumes=[
                         f'{os.path.abspath("indy/scripts/")}:/opt/indy/scripts/', 
                         f'{os.path.abspath("indy/tmp/trustees.csv")}:/tmp/indy/trustees.csv',
-                        f'{os.path.abspath(f"indy/tmp/{prefix}/node{i+1}")}:/var/lib/indy/'
+                        f'{os.path.abspath(f"indy/tmp/{prefix}/")}:/var/lib/indy/'
                     ]
                 )
             nodes.append(node)
@@ -67,6 +67,11 @@ class IndyBasic:
         
 
     def start_network(self) -> None:
+
+        # Remove old files
+        for i, node in enumerate(self.nodes):
+            node.cmd("rm -rf /var/lib/indy/$NETWORK_NAME")
+
         self.indy_cli.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
         genesis_file_name = uuid.uuid4()
         array_genesis = numpy.array([['Steward name','Validator alias','Node IP address','Node port','Client IP address','Client port','Validator verkey','Validator BLS key','Validator BLS POP','Steward DID','Steward verkey']])
@@ -87,8 +92,8 @@ class IndyBasic:
         self.genesis_file_path = f'indy/tmp/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis, delimiter=',', fmt='%s')
         for i, node in enumerate(self.nodes):
-            print(node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
-            print(node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
+            (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
+            (node.cmd(f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
             node.cmd(f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
             node.cmd(f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
     
