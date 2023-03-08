@@ -7,7 +7,6 @@ FogLedger is tool based on Fogbed. It is framework and toolset integration for r
 
 Before installing Fogbed it is necessary to install some dependencies and Containernet, as shown in the steps below:
 
-
 #### 1. Install Containernet
 ```
 sudo apt-get install ansible
@@ -51,5 +50,5 @@ cd dlts
 ```
 
 ```
-sudo python3 test-distributed-network
+sudo python3 test-local-network.py
 ```
