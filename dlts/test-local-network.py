@@ -36,7 +36,7 @@ if(__name__=='__main__'):
 
     webserverContainer = Container(
             name='webserver', 
-            dimage='webserver',
+            dimage='mnplima/fogbed-indy-webserver:latest',
             port_bindings={8000: 8000},
             ports=[8000],
             environment={
