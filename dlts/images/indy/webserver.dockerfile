@@ -1,8 +1,6 @@
-FROM ghcr.io/bcgov/von-network-base:latest
+FROM ghcr.io/bcgov/von-network-base:sha-211d1817
 USER root
-RUN apt-get update && apt-get install -y indy-cli \
-    net-tools \
+RUN apt-get update && apt-get install -y net-tools \
     iputils-ping \
-    iproute \
-    pwgen
+    iproute2 
 CMD /bin/bash

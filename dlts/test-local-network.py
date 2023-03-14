@@ -37,10 +37,12 @@ if(__name__=='__main__'):
     webserverContainer = Container(
             name='webserver', 
             dimage='webserver',
-            port_bindings={8000:8000},
+            port_bindings={8000: 8000},
+            ports=[8000],
             environment={
                 'MAX_FETCH':50000,
                 'RESYNC_TIME':120,
+                'WEB_ANALYTICS': True,
                 'REGISTER_NEW_DIDS':True,
                 'LEDGER_INSTANCE_NAME':"fogbed",
                 'INFO_SITE_TEXT':"Node Container @ GitHub",
@@ -54,7 +56,7 @@ if(__name__=='__main__'):
             )
     instanceWebserver = exp.add_docker(
             container=webserverContainer,
-            datacenter=indyCloud.cli_instance)
+            datacenter=cloud)
     
     try:
         exp.start() 
@@ -62,9 +64,8 @@ if(__name__=='__main__'):
         indyCloud.start_network()
         indyFog.start_network()
 
-        webserverContainer.cmd(f'echo "{indyCloud.request_genesis_file()}" >> /var/lib/indy/fogbed/pool_transactions_genesis')
         time.sleep(10)
-        # print(webserverContainer.cmd('./scripts/start_webserver.sh'))
+        print(webserverContainer.cmd('./scripts/start_webserver.sh'))
 
         exp.start_cli()
         input('Press any key...')
