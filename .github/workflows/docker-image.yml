@@ -34,7 +34,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-cli:latest
 
       -
-        name: Build and push Cli
+        name: Build and push Webserver
         uses: docker/build-push-action@v4
         with:
           context: ./dlts/images/indy
