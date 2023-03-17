@@ -14,17 +14,18 @@ class IndyBasic:
         self,
         exp: FogbedExperiment,
         number_nodes: int = 4,
+        prefix: str = 'node',
         trustees_path='indy/tmp/trustees.csv'
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
-        self.number_nodes: int = number_nodes
         self.exp = exp
         self.genesis_file_path = ''
         self.trustees_path = trustees_path
+        self._create_ledgers(prefix, number_nodes)
 
-    def create_ledgers(self, prefix: str = 'node'):
-        self.ledgers = self._create_ledgers(self.number_nodes, prefix)
+    def _create_ledgers(self, prefix: str = 'node', number_nodes: int = 4):
+        self.ledgers = self._create_virtual_inscantes(number_nodes, prefix)
         self.nodes = self._create_nodes(prefix)
         return self.ledgers, self.nodes
 
@@ -32,7 +33,7 @@ class IndyBasic:
         for device in devices:
             self.exp.add_link(device, target)
 
-    def _create_ledgers(self, number: int, prefix: str) -> List[VirtualInstance]:
+    def _create_virtual_inscantes(self, number: int, prefix: str) -> List[VirtualInstance]:
         return [self.exp.add_virtual_instance(f'{prefix}{i+1}') for i in range(number)]
 
     def _create_nodes(self, prefix: str):

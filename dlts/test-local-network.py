@@ -21,17 +21,17 @@ if (__name__ == '__main__'):
     exp = FogbedExperiment()
 
     # Define Indy network in cloud
-    indyCloud = IndyBasic(exp=exp, number_nodes=3, trustees_path = 'indy/tmp/trustees.csv')
+    indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='cloud',  number_nodes=3)
+
+    
     cloud = exp.add_virtual_instance('cloud')
-    ledgers, nodes = indyCloud.create_ledgers('cloud')
-    create_links(cloud, ledgers)
+    create_links(cloud, indyCloud.ledgers)
     exp.add_link(cloud, indyCloud.cli_instance)
 
     # Define Indy network in fog
-    indyFog = IndyBasic(exp=exp, number_nodes=3)
+    indyFog = IndyBasic(exp=exp, prefix='fog',  number_nodes=3)
     fog = exp.add_virtual_instance('fog')
-    ledgers, nodes = indyFog.create_ledgers('fog')
-    create_links(fog, ledgers)
+    create_links(fog, indyFog.ledgers)
 
     webserverContainer = Container(
         name='webserver',
