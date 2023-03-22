@@ -99,7 +99,7 @@ class IndyBasic:
                       delimiter=',', fmt='%s')
         for i, node in enumerate(self.nodes):
             (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
-            (node.cmd(
+            print(node.cmd(
                 f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
             node.cmd(
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')

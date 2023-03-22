@@ -51,4 +51,4 @@ RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
 RUN mkdir /tmp/indy/
 
-COPY scripts/ /opt/indy/scripts/
+COPY scripts /opt/indy/scripts/
