@@ -50,3 +50,5 @@ RUN awk -v var="${NETWORK_NAME}" '{if (index($1, "NETWORK_NAME") != 0) {print("N
 RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
 RUN mkdir /tmp/indy/
+
+COPY scripts/ /opt/indy/scripts/
