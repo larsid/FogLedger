@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
             'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis"
         },
         volumes=[
-            f'{os.path.abspath(f"indy/tmp/cloud/")}:/var/lib/indy/'
+            f'/tmp/indy/cloud:/var/lib/indy/'
         ]
     )
     exp.add_docker(

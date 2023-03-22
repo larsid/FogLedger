@@ -52,7 +52,7 @@ class IndyBasic:
             name = f'{prefix}{i+1}'
             node = Container(
                 name=name,
-                dimage='mnplima/fogbed-indy-node',
+                dimage='mnplima/fogbed-indy-node:latest',
                 volumes=[
                     f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
                     f'{f"/tmp/indy/{prefix}/"}:/var/lib/indy/'
