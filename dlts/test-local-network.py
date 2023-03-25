@@ -36,8 +36,8 @@ if (__name__ == '__main__'):
     webserverContainer = Container(
         name='webserver',
         dimage='mnplima/fogbed-indy-webserver:latest',
-        port_bindings={8000: 8000},
-        ports=[8000],
+        port_bindings={8000: 9000, 6543:6543},
+        ports=[8000, 6543],
         environment={
             'MAX_FETCH': 50000,
             'RESYNC_TIME': 120,
@@ -56,7 +56,6 @@ if (__name__ == '__main__'):
     instanceWebserver = exp.add_docker(
         container=webserverContainer,
         datacenter=cloud)
-    
 
     try:
         exp.start()
@@ -65,11 +64,13 @@ if (__name__ == '__main__'):
         indyFog.start_network()
 
         time.sleep(10)
-        print(webserverContainer.cmd('./scripts/start_webserver.sh'))
+        print(webserverContainer.cmd('./scripts/start_webserver.sh > output.log 2>&1 &'))
 
-        # exp.start_cli()
+        exp.start_cli()
         input('Press any key...')
     except Exception as ex:
         print(ex)
     finally:
         exp.stop()
+
+

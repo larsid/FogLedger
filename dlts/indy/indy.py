@@ -94,13 +94,13 @@ class IndyBasic:
         rows = ["{},{},{},{},{},{},{},{},{},{},{}".format(
             a, b, c, d, e, f, g, h, i, j, k) for a, b, c, d, e, f, g, h, i, j, k in array_genesis]
         text = "\n".join(rows)
-        self.genesis_file_path = f'indy/tmp/{genesis_file_name}.csv'
+        self.genesis_file_path = f'/tmp/indy/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis,
                       delimiter=',', fmt='%s')
         for i, node in enumerate(self.nodes):
             (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
-            print(node.cmd(
-                f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv'))
+            node.cmd(
+                f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
             node.cmd(
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
             node.cmd(
