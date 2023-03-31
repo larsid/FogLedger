@@ -36,7 +36,7 @@ class IndyBasic:
     def _create_virtual_inscantes(self, number: int, prefix: str) -> List[VirtualInstance]:
         return [self.exp.add_virtual_instance(f'{prefix}{i+1}') for i in range(number)]
 
-    def _create_nodes(self, prefix: str):
+    def _create_nodes(self, prefix: str) -> List[Container]: 
         nodes = []
 
         # Cli to create seeds to nodes
