@@ -71,7 +71,7 @@ if (__name__ == '__main__'):
             dimage='app',
             environment={
                 'AGENT_ADDR': acaPy1.ip,
-                'AGENT_PORT': 3001
+                'AGENT_PORT': 3002
             }
         ),
         datacenter=edge1)
@@ -79,7 +79,6 @@ if (__name__ == '__main__'):
     exp.add_docker(
         container=acaPy2,
         datacenter=edge2)
-    
 
     add_datacenters_to_worker(worker1, [indyCloud.cli_instance])
 
@@ -94,9 +93,24 @@ if (__name__ == '__main__'):
         exp.start()
         indyCloud.start_network()
         time.sleep(2)
-        acaPy1.cmd(f'aca-py start --endpoint http://{acaPy1.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy > output.log 2>&1 &')
-        acaPy2.cmd(f'aca-py start --endpoint http://{acaPy2.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy > output.log 2>&1 &')
+        acaPy1.cmd(f'aca-py start --endpoint http://{acaPy1.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-requests \
+          --auto-respond-credential-proposal \
+          --auto-respond-credential-offer \
+          --auto-respond-credential-request \
+          --auto-store-credential \
+          --auto-respond-presentation-proposal \
+          --auto-respond-presentation-request \
+          --auto-verify-presentation > output.log 2>&1 &')
 
+        acaPy2.cmd(f'aca-py start --endpoint http://{acaPy2.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-invites \
+          --auto-respond-credential-proposal \
+          --auto-respond-credential-offer \
+          --auto-respond-credential-request \
+          --auto-store-credential \
+          --auto-respond-presentation-proposal \
+          --auto-respond-presentation-request \
+          --auto-verify-presentation > output.log 2>&1 &')
+        exp.start_cli()
         input('Press any key...')
     except Exception as ex:
         print(ex)
