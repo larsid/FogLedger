@@ -62,13 +62,16 @@ if (__name__ == '__main__'):
         port_bindings={3002: 3002, 3001: 3001},
         ports=[3002, 3001],
         environment={
-            'ACAPY_GENESIS_URL': f"http://{webserverContainer.ip}:8000/genesis",
+            'ACAPY_GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 1 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        }
+        },
+        volumes=[
+            f'/tmp/indy/cloud:/var/lib/indy/'
+        ]
     )
     acaPy2 = Container(
         name='aca-py2',
@@ -76,13 +79,16 @@ if (__name__ == '__main__'):
         port_bindings={3002: 3004, 3001: 3003},
         ports=[3002, 3001],
         environment={
-            'ACAPY_GENESIS_URL': f"http://{webserverContainer.ip}:8000/genesis",
+            'ACAPY_GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 2 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee3",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        }
+        },
+        volumes=[
+            f'/tmp/indy/cloud:/var/lib/indy/'
+        ]
     )
 
     agent1 = Container(

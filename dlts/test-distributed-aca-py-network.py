@@ -19,8 +19,8 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker(ip='192.168.0.102')
-    worker2 = exp.add_worker(ip='192.168.0.105')
+    worker1 = exp.add_worker('192.168.0.103')
+    worker2 = exp.add_worker('192.168.0.104')
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
@@ -62,6 +62,14 @@ if (__name__ == '__main__'):
     )
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
+
+
+    exp.add_docker(
+        container=acaPy2,
+        datacenter=edge2)
+
+    agent1 = exp.add_virtual_instance('agent1')
+    agent2 = exp.add_virtual_instance('agent2')
     exp.add_docker(
         container=acaPy1,
         datacenter=edge1)
@@ -71,28 +79,35 @@ if (__name__ == '__main__'):
             dimage='app',
             environment={
                 'AGENT_ADDR': acaPy1.ip,
-                'AGENT_PORT': 3002
+                'AGENT_PORT': 3001
             }
         ),
-        datacenter=edge1)
-
+        datacenter=agent1)
+    
     exp.add_docker(
-        container=acaPy2,
-        datacenter=edge2)
-
+        container=Container(
+            name='agent2',
+            dimage='app',
+            environment={
+                'AGENT_ADDR': acaPy2.ip,
+                'AGENT_PORT': 3001
+            }
+        ),
+        datacenter=agent2)
+    
     add_datacenters_to_worker(worker1, [indyCloud.cli_instance])
 
     add_datacenters_to_worker(
         worker1, indyCloud.ledgers[:len(indyCloud.ledgers)//2])
     add_datacenters_to_worker(
         worker2, indyCloud.ledgers[len(indyCloud.ledgers)//2:])
-    add_datacenters_to_worker(worker1, [edge1])
-    add_datacenters_to_worker(worker2, [edge2])
+    add_datacenters_to_worker(worker1, [edge1, agent1])
+    add_datacenters_to_worker(worker2, [edge2, agent2])
     exp.add_tunnel(worker1, worker2)
     try:
         exp.start()
         indyCloud.start_network()
-        time.sleep(2)
+        time.sleep(10)
         acaPy1.cmd(f'aca-py start --endpoint http://{acaPy1.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-requests \
           --auto-respond-credential-proposal \
           --auto-respond-credential-offer \
@@ -101,7 +116,7 @@ if (__name__ == '__main__'):
           --auto-respond-presentation-proposal \
           --auto-respond-presentation-request \
           --auto-verify-presentation > output.log 2>&1 &')
-
+        
         acaPy2.cmd(f'aca-py start --endpoint http://{acaPy2.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-invites \
           --auto-respond-credential-proposal \
           --auto-respond-credential-offer \
@@ -110,7 +125,6 @@ if (__name__ == '__main__'):
           --auto-respond-presentation-proposal \
           --auto-respond-presentation-request \
           --auto-verify-presentation > output.log 2>&1 &')
-        exp.start_cli()
         input('Press any key...')
     except Exception as ex:
         print(ex)

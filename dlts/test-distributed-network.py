@@ -20,8 +20,8 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker(ip='192.168.0.104')
-    worker2 = exp.add_worker(ip='192.168.0.105')
+    worker1 = exp.add_worker('192.168.0.103')
+    worker2 = exp.add_worker('192.168.0.104')
     webserver = exp.add_virtual_instance('webserver')
     webserverContainer = Container(
         name='webserver',
