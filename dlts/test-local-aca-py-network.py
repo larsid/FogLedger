@@ -23,32 +23,22 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(
         exp=exp, trustees_path='indy/tmp/trustees.csv', prefix='cloud',  number_nodes=3)
-    edge1 = exp.add_virtual_instance('edge')
-    edge2 = exp.add_virtual_instance('edge2')
 
     cloud = exp.add_virtual_instance('cloud')
     create_links(cloud, indyCloud.ledgers)
     exp.add_link(cloud, indyCloud.cli_instance)
 
+    edge1 = exp.add_virtual_instance('edge')
+    edge2 = exp.add_virtual_instance('edge2')
     webserverContainer = Container(
         name='webserver',
-        dimage='mnplima/fogbed-indy-webserver:latest',
-        port_bindings={8000: 9000, 6543: 6543},
-        ports=[8000, 6543],
-        environment={
-            'MAX_FETCH': 50000,
-            'RESYNC_TIME': 120,
-            'WEB_ANALYTICS': True,
-            'REGISTER_NEW_DIDS': True,
-            'LEDGER_INSTANCE_NAME': "fogbed",
-            'INFO_SITE_TEXT': "Node Container @ GitHub",
-            'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
-            'LEDGER_SEED': "000000000000000000000000Trustee1",
-            'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis"
-        },
+        dimage='httpd-fogbed',
+        port_bindings={80:80},
+        ports=[80],
         volumes=[
-            f'/tmp/indy/cloud:/var/lib/indy/'
-        ]
+            f'/tmp/indy/cloud:/usr/local/apache2/htdocs/'
+        ], 
+        dcmd='httpd-foreground'
     )
     instanceWebserver = exp.add_docker(
         container=webserverContainer,
@@ -62,7 +52,7 @@ if (__name__ == '__main__'):
         port_bindings={3002: 3002, 3001: 3001},
         ports=[3002, 3001],
         environment={
-            'ACAPY_GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis",
+            'ACAPY_GENESIS_URL': f"http://{webserverContainer.ip}/fogbed/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 1 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
@@ -79,7 +69,7 @@ if (__name__ == '__main__'):
         port_bindings={3002: 3004, 3001: 3003},
         ports=[3002, 3001],
         environment={
-            'ACAPY_GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis",
+            'ACAPY_GENESIS_URL': f"http://{webserverContainer.ip}/fogbed/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 2 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee3",
