@@ -20,6 +20,7 @@ class IndyBasic:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
         self.exp = exp
+        self.genesis_content = ''
         self.genesis_file_path = ''
         self.trustees_path = trustees_path
         self._create_ledgers(prefix, number_nodes)
@@ -91,23 +92,25 @@ class IndyBasic:
             lines = aux.splitlines()
             array_genesis = numpy.append(array_genesis, [[node.name, node.name, node.ip, 9701, node.ip, 9702, lines[5].split(
                 ' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
-        rows = ["{},{},{},{},{},{},{},{},{},{},{}".format(
-            a, b, c, d, e, f, g, h, i, j, k) for a, b, c, d, e, f, g, h, i, j, k in array_genesis]
-        text = "\n".join(rows)
+
+        # create a list of formatted rows
+        rows = [','.join(str(field) for field in row) for row in array_genesis]
+
+        # join the rows with a newline separator to create the CSV text
+        text = '\n'.join(rows)
+
         self.genesis_file_path = f'/tmp/indy/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis,
-                      delimiter=',', fmt='%s')
+                    delimiter=',', fmt='%s')
+                    
         for i, node in enumerate(self.nodes):
             (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
             node.cmd(
                 f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
             node.cmd(
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
-            node.cmd(
-                f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
+            node.cmd(f'start_indy_node {node.name} {node.ip}')
+        
 
-    def request_genesis_file(self) -> str:
-        genesis_file = open(self.genesis_file_path, 'r')
-        data = genesis_file.read()
-        genesis_file.close()
-        return data
+        # save genesis content in memory
+        self.genesis_content = self.nodes[0].cmd('echo domain_transactions_genesis')
