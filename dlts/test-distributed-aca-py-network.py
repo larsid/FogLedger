@@ -28,13 +28,20 @@ if (__name__ == '__main__'):
     
     webserverContainer = Container(
         name='webserver',
-        dimage='httpd-fogbed',
-        port_bindings={80:80},
-        ports=[80],
-        volumes=[
-            f'/tmp/indy/cloud:/etc/www/html'
-        ], 
-        dcmd='apache2ctl -D FOREGROUND'
+        dimage='webserver',
+        port_bindings={8000:8000},
+        ports=[8000],
+        environment={
+            'MAX_FETCH': 50000,
+            'RESYNC_TIME': 120,
+            'WEB_ANALYTICS': True,
+            'REGISTER_NEW_DIDS': True,
+            'LEDGER_INSTANCE_NAME': "fogbed",
+            'INFO_SITE_TEXT': "Node Container @ GitHub",
+            'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
+            'LEDGER_SEED': "000000000000000000000000Trustee1",
+            'GENESIS_FILE': "/pool_transactions_genesis"
+        }
     )
 
     acaPy1 = Container(
@@ -49,10 +56,7 @@ if (__name__ == '__main__'):
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        },
-        volumes=[
-            f'/tmp/indy/cloud:/var/lib/indy/'
-        ]
+        }
     )
     acaPy2 = Container(
         name='aca-py2',
@@ -66,16 +70,14 @@ if (__name__ == '__main__'):
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee3",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        },
-        volumes=[
-            f'/tmp/indy/cloud:/var/lib/indy/'
-        ]
+        }
     )
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
+    webserver = exp.add_virtual_instance('webserver')
 
     exp.add_docker(container=webserverContainer,
-                    datacenter=edge1)
+                    datacenter=webserver)
     exp.add_docker(
         container=acaPy2,
         datacenter=edge2)
@@ -93,14 +95,21 @@ if (__name__ == '__main__'):
 
     add_datacenters_to_worker(worker1, [edge1])
     add_datacenters_to_worker(worker2, [edge2])
+    worker1.add(webserver)
+    worker1.add_link(webserver, edge1)
 
     exp.add_tunnel(worker1, worker2)
     try:
         exp.start()
         indyCloud.start_network()
+        indyCloud.genesis_content
+        webserverContainer.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
 
-        time.sleep(10)
-        acaPy1.cmd(f'cat {indyCloud.genesis_content} >> /pool_transactions_genesis')
+        webserverContainer.cmd('./scripts/start_webserver.sh > output.log 2>&1 &')
+        
+        acaPy1.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+
+
         acaPy1.cmd(f'aca-py start --endpoint http://{acaPy1.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-requests \
           --auto-respond-credential-proposal \
           --auto-respond-credential-offer \
@@ -110,7 +119,7 @@ if (__name__ == '__main__'):
           --auto-respond-presentation-request \
           --auto-verify-presentation > output.log 2>&1 &')
         
-        acaPy2.cmd(f'cat {indyCloud.genesis_content} >> /pool_transactions_genesis')
+        acaPy2.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy2.cmd(f'aca-py start --endpoint http://{acaPy2.ip}:3002 --admin 0.0.0.0 3001 --admin-insecure-mode --auto-accept-intro-invitation-requests --auto-accept-invites --auto-accept-requests --auto-ping-connection --auto-provision --debug-connections --inbound-transport http 0.0.0.0 3002 --log-level INFO --outbound-transport http --public-invites --wallet-name fogbed --wallet-type indy --auto-accept-invites \
           --auto-respond-credential-proposal \
           --auto-respond-credential-offer \

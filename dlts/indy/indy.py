@@ -37,7 +37,7 @@ class IndyBasic:
     def _create_virtual_inscantes(self, number: int, prefix: str) -> List[VirtualInstance]:
         return [self.exp.add_virtual_instance(f'{prefix}{i+1}') for i in range(number)]
 
-    def _create_nodes(self, prefix: str) -> List[Container]: 
+    def _create_nodes(self, prefix: str) -> List[Container]:
         nodes = []
 
         # Cli to create seeds to nodes
@@ -101,16 +101,16 @@ class IndyBasic:
 
         self.genesis_file_path = f'/tmp/indy/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis,
-                    delimiter=',', fmt='%s')
-                    
+                      delimiter=',', fmt='%s')
+
         for i, node in enumerate(self.nodes):
             (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
             node.cmd(
                 f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
             node.cmd(
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
-            node.cmd(f'start_indy_node {node.name} {node.ip}')
-        
+            node.cmd(
+                f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
 
         # save genesis content in memory
-        self.genesis_content = self.nodes[0].cmd('echo domain_transactions_genesis')
+        self.genesis_content = self.nodes[0].cmd('cat pool_transactions_genesis')
