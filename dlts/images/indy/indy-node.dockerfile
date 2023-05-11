@@ -1,4 +1,5 @@
 FROM ubuntu:20.04
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV NETWORK_NAME=fogbed
 RUN apt-get update -y && apt-get install -y \
@@ -46,6 +47,8 @@ RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     # fix path to libursa
     && ln -s /usr/lib/ursa/libursa.so /usr/lib/libursa.so
+RUN apt update && apt install systemd -y
+
 RUN awk -v var="${NETWORK_NAME}" '{if (index($1, "NETWORK_NAME") != 0) {print("NETWORK_NAME = \"" var "\"")} else print($0)}' /etc/indy/indy_config.py> /tmp/indy_config.py
 RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
