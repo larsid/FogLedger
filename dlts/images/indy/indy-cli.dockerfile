@@ -12,5 +12,6 @@ RUN apt-get update && apt-get install -y indy-cli \
     iputils-ping \
     iproute \
     pwgen
-    
+RUN echo '{"taaAcceptanceMechanism":"for_session"}' > /cliconfig
+RUN indy-cli --config /cliconfig
 CMD /bin/bash

@@ -66,7 +66,7 @@ class IndyBasic:
         return nodes
 
     def start_network(self) -> None:
-
+        print('Starting indy network...')
         # Remove old files
         for i, node in enumerate(self.nodes):
             node.cmd("rm -rf /var/lib/indy/$NETWORK_NAME")
