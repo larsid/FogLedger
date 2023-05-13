@@ -57,7 +57,8 @@ class IndyBasic:
                 volumes=[
                     f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
                     f'{f"/tmp/indy/{prefix}/"}:/var/lib/indy/'
-                ]
+
+                ],
             )
             nodes.append(node)
             self.exp.add_docker(

@@ -11,11 +11,6 @@ from indy.indy import (IndyBasic)
 setLogLevel('info')
 
 
-def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]):
-    for device in datacenters:
-        worker.add(device, reachable=True)
-
-
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
@@ -56,47 +51,21 @@ if (__name__ == '__main__'):
     )
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
-
+    exp.add_docker(
+        container=acaPy1,
+        datacenter=edge1)
 
     exp.add_docker(
         container=acaPy2,
         datacenter=edge2)
 
-    agent1 = exp.add_virtual_instance('agent1')
-    agent2 = exp.add_virtual_instance('agent2')
-    exp.add_docker(
-        container=acaPy1,
-        datacenter=edge1)
-    exp.add_docker(
-        container=Container(
-            name='agent1',
-            dimage='app',
-            environment={
-                'AGENT_ADDR': acaPy1.ip,
-                'AGENT_PORT': 3001
-            }
-        ),
-        datacenter=agent1)
+    worker1.add(edge1, reachable=True)
+    worker2.add(edge2, reachable=True)
+    worker2.add(indyCloud.cli_instance, reachable=True)
+    for ledger in indyCloud.ledgers:
+        worker1.add(ledger)
+        worker1.add_link(edge1, ledger)
     
-    exp.add_docker(
-        container=Container(
-            name='agent2',
-            dimage='app',
-            environment={
-                'AGENT_ADDR': acaPy2.ip,
-                'AGENT_PORT': 3001
-            }
-        ),
-        datacenter=agent2)
-    
-    add_datacenters_to_worker(worker1, [indyCloud.cli_instance])
-
-    add_datacenters_to_worker(
-        worker1, indyCloud.ledgers)
-    # add_datacenters_to_worker(
-    #     worker2, indyCloud.ledgers[len(indyCloud.ledgers)//2:])
-    add_datacenters_to_worker(worker1, [edge1, agent1])
-    add_datacenters_to_worker(worker2, [edge2, agent2])
     exp.add_tunnel(worker1, worker2)
     try:
         exp.start()
