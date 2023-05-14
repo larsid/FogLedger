@@ -20,33 +20,28 @@ if (__name__ == '__main__'):
     # Define apache
     apache = Container(
         name='apache',
-        dimage='httpd',
+        dimage='httpd-fogbed',
         port_bindings={80: 80},
         ports=[80],
-        dcmd='httpd-foreground'
+        dcmd='httpd-foreground',
+        ip='10.0.0.10'
     )
     edge1 = exp.add_virtual_instance('edge1')
     client1 = exp.add_virtual_instance('client1')
     client2 = exp.add_virtual_instance('client2')
     exp.add_docker(
         container=apache,
-        datacenter=edge1
+        datacenter=edge1,
+
+    )
+
+    exp.add_docker(container=Container(name='cli1', ip='10.0.0.11'), 
+        datacenter=client1,
     )
 
     exp.add_docker(
-        container=Container(
-            name='cli1',
-            dimage='ubuntu'
-        ), 
-        datacenter=client1
-    )
-
-    exp.add_docker(
-        container=Container(
-            name='cli2',
-            dimage='ubuntu'
-        ), 
-        datacenter=client2
+        container=Container(name='cli2', ip='10.0.0.12'), 
+        datacenter=client2,
     )
 
     worker1.add(edge1, reachable=True)

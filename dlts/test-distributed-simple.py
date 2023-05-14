@@ -14,8 +14,8 @@ setLogLevel('info')
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker('192.168.0.104')
-    worker2 = exp.add_worker('192.168.0.105')
+    worker1 = exp.add_worker('fog1')
+    worker2 = exp.add_worker('fog2')
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
@@ -33,8 +33,7 @@ if (__name__ == '__main__'):
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee1",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        }
-    )
+        })
     acaPy2 = Container(
         name='aca-py2',
         dimage='aca-py',
@@ -47,8 +46,7 @@ if (__name__ == '__main__'):
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
-        }
-    )
+        })
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
     exp.add_docker(
