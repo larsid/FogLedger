@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM httpd:2.4.57-bullseye
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y net-tools \
     iputils-ping \
