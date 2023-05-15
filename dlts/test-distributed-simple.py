@@ -13,7 +13,7 @@ setLogLevel('info')
 
 if (__name__ == '__main__'):
 
-    exp = FogbedDistributedExperiment()
+    exp = FogbedDistributedExperiment(max_cpu=2, max_memory=4098, controller_ip='fog2')
     worker1 = exp.add_worker('fog1')
     worker2 = exp.add_worker('fog2')
 
@@ -24,28 +24,30 @@ if (__name__ == '__main__'):
     acaPy1 = Container(
         name='aca-py1',
         dimage='aca-py',
-        port_bindings={3002: 3002, 3001: 3001},
-        ports=[3002, 3001],
+        port_bindings={80: 80, 443: 443},
+        ports=[80, 443],
+        resources=Resources.LARGE,
         environment={
             'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 1 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee1",
-            'ADMIN_PORT': 3001,
-            'AGENT_PORT': 3002
+            'ADMIN_PORT': 443,
+            'AGENT_PORT': 80
         })
     acaPy2 = Container(
         name='aca-py2',
         dimage='aca-py',
-        port_bindings={3002: 3004, 3001: 3003},
-        ports=[3002, 3001],
+        port_bindings={80: 3004, 443: 3003},
+        resources=Resources.LARGE,
+        ports=[80, 443],
         environment={
             'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 2 Agent",
             'ACAPY_WALLET_KEY': "secret",
             'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
-            'ADMIN_PORT': 3001,
-            'AGENT_PORT': 3002
+            'ADMIN_PORT': 443,
+            'AGENT_PORT': 80
         })
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
@@ -72,10 +74,10 @@ if (__name__ == '__main__'):
         acaPy1.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy1.cmd(f'aca-py start \
         --auto-provision \
-        -it http {acaPy1.ip} 3002 \
+        -it http {acaPy1.ip} 80 \
         -ot http \
-        --admin {acaPy1.ip} 3001 \
-        -e http://{acaPy1.ip}:3002 \
+        --admin {acaPy1.ip} 443 \
+        -e http://{acaPy1.ip}:80 \
         --wallet-name fogbed  \
         --wallet-type indy \
         --auto-accept-invites \
@@ -98,10 +100,10 @@ if (__name__ == '__main__'):
         acaPy2.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy2.cmd(f'aca-py start \
         --auto-provision \
-        -it http {acaPy2.ip} 3002 \
+        -it http {acaPy2.ip} 80 \
         -ot http \
-        --admin {acaPy2.ip} 3001 \
-        -e http://{acaPy2.ip}:3002 \
+        --admin {acaPy2.ip} 443 \
+        -e http://{acaPy2.ip}:80 \
         --wallet-name fogbed  \
         --wallet-type indy \
         --auto-accept-invites \
