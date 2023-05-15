@@ -1,8 +1,7 @@
-FROM ubuntu:focal
+FROM bcgovimages/aries-cloudagent:py36-1.16-1_0.8.1
 USER root
 RUN apt-get update && apt-get install -y net-tools \
     iputils-ping \
-    iproute2 \
-    python3-pip
-RUN pip install aries-cloudagent
+    iproute2 
+USER indy
 CMD /bin/bash
