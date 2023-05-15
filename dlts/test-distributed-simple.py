@@ -72,9 +72,9 @@ if (__name__ == '__main__'):
         acaPy1.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy1.cmd(f'aca-py start \
         --auto-provision \
-        -it http 0.0.0.0 3002 \
+        -it http {acaPy1.ip} 3002 \
         -ot http \
-        --admin 0.0.0.0 3001 \
+        --admin {acaPy1.ip} 3001 \
         -e http://{acaPy1.ip}:3002 \
         --wallet-name fogbed  \
         --wallet-type indy \
@@ -98,9 +98,9 @@ if (__name__ == '__main__'):
         acaPy2.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy2.cmd(f'aca-py start \
         --auto-provision \
-        -it http 0.0.0.0 3002 \
+        -it http {acaPy2.ip} 3002 \
         -ot http \
-        --admin 0.0.0.0 3001 \
+        --admin {acaPy2.ip} 3001 \
         -e http://{acaPy2.ip}:3002 \
         --wallet-name fogbed  \
         --wallet-type indy \
