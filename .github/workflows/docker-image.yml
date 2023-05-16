@@ -4,28 +4,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      -
-        name: Build and push Node
+      - name: Build and push Node
         uses: docker/build-push-action@v4
         with:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/indy-node.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-node:latest
-      -
-        name: Build and push Cli
+      - name: Build and push Cli
         uses: docker/build-push-action@v4
         with:
           context: ./dlts/images/indy
@@ -33,11 +28,18 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-cli:latest
 
-      -
-        name: Build and push Webserver
+      - name: Build and push Webserver
         uses: docker/build-push-action@v4
         with:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/webserver.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-webserver:latest
+
+      - name: Build and push httpd
+        uses: docker/build-push-action@v4
+        with:
+          context: ./dlts/images/indy
+          file: ./dlts/images/indy/httpd.dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-httpd:latest

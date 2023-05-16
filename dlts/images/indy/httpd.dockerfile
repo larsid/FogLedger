@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y net-tools \
     iproute2 \
     python3 \
     wget \
-    pwgen \
-    apache2
+    pwgen
     
 CMD /bin/bash

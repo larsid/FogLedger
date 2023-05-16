@@ -55,9 +55,8 @@ class IndyBasic:
                 name=name,
                 dimage='mnplima/fogbed-indy-node:latest',
                 volumes=[
-                    f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
+                    f"{os.path.abspath('indy/')}:/usr/local/apache2/htdocs/",
                     f'{f"/tmp/indy/{prefix}/"}:/var/lib/indy/'
-
                 ],
             )
             nodes.append(node)

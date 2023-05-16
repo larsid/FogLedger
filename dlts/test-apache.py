@@ -23,7 +23,10 @@ if (__name__ == '__main__'):
         dimage='httpd-fogbed',
         ports=[80],
         dcmd='httpd-foreground',
-        ip='10.0.0.10'
+        ip='10.0.0.10',
+        volumes=[
+         f"{os.path.abspath('html/')}:/usr/local/apache2/htdocs/",
+        ]
     )
     edge1 = exp.add_virtual_instance('edge1')
     client1 = exp.add_virtual_instance('client1')
