@@ -20,7 +20,7 @@ if (__name__ == '__main__'):
     # Define apache
     apache = Container(
         name='apache',
-        dimage='fogbed-httpd:latest',
+        dimage='mnplima/fogbed-httpd:latest',
         ports=[80],
         dcmd='httpd-foreground',
         ip='10.0.0.10',
