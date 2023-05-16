@@ -26,7 +26,7 @@ class IndyBasic:
         self._create_ledgers(prefix, number_nodes)
 
     def _create_ledgers(self, prefix: str = 'node', number_nodes: int = 4):
-        self.ledgers = self._create_virtual_inscantes(number_nodes, prefix)
+        self.ledgers = self._create_virtual_instances(number_nodes, prefix)
         self.nodes = self._create_nodes(prefix)
         return self.ledgers, self.nodes
 
@@ -34,7 +34,7 @@ class IndyBasic:
         for device in devices:
             self.exp.add_link(device, target)
 
-    def _create_virtual_inscantes(self, number: int, prefix: str) -> List[VirtualInstance]:
+    def _create_virtual_instances(self, number: int, prefix: str) -> List[VirtualInstance]:
         return [self.exp.add_virtual_instance(f'{prefix}{i+1}') for i in range(number)]
 
     def _create_nodes(self, prefix: str) -> List[Container]:
