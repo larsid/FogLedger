@@ -54,7 +54,9 @@ RUN mv /tmp/indy_config.py /etc/indy/indy_config.py
 RUN mkdir /var/lib/indy/${NETWORK_NAME}
 RUN mkdir /tmp/indy/
 
+RUN chown -R indy:indy /var/lib/indy/${NETWORK_NAME}
+RUN chown -R indy:indy /tmp/indy/
+
 COPY scripts /opt/indy/scripts/
-USER indy
-CMD /bin/bash
+CMD ['bash']
 
