@@ -42,4 +42,4 @@ jobs:
           context: ./dlts/images/indy
           file: ./dlts/images/indy/httpd.dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-httpd:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-httpd:latest
