@@ -55,3 +55,6 @@ RUN mkdir /var/lib/indy/${NETWORK_NAME}
 RUN mkdir /tmp/indy/
 
 COPY scripts /opt/indy/scripts/
+USER indy
+CMD /bin/bash
+

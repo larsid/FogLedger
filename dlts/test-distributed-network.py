@@ -35,7 +35,7 @@ if (__name__ == '__main__'):
     try:
         exp.start()
         indyCloud.start_network()
-
+        indyCloud.indy_cli.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         input('Press any key...')
     except Exception as ex:
         print(ex)
