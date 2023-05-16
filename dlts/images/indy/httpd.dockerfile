@@ -8,3 +8,4 @@ RUN apt-get update && apt-get install -y net-tools \
     pwgen
     
 CMD /bin/bash
+EXPOSE 80
