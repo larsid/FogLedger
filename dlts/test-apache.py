@@ -21,9 +21,8 @@ if (__name__ == '__main__'):
     apache = Container(
         name='apache',
         dimage='httpd-fogbed',
-        port_bindings={80: 80},
         ports=[80],
-        dcmd='service apache2 start',
+        dcmd='httpd-foreground',
         ip='10.0.0.10'
     )
     edge1 = exp.add_virtual_instance('edge1')
