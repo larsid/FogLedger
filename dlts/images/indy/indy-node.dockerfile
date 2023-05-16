@@ -54,4 +54,4 @@ RUN mkdir /tmp/indy/
 COPY scripts /opt/indy/scripts/
 CMD ["bash"]
 
-EXPOSE 9701 9702 9703 9704 9705 9706 9707 9708 9709 9710
+EXPOSE 80
