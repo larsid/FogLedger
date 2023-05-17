@@ -52,6 +52,7 @@ RUN mkdir /var/lib/indy/${NETWORK_NAME}
 RUN mkdir /tmp/indy/
 
 COPY scripts /opt/indy/scripts/
+RUN chmod +x /opt/indy/scripts/change_mtu.bash
 CMD ["bash"]
 
 EXPOSE 9701 9702 9703 9704 9705 9706 9707 9708 9709 9710 80 8080

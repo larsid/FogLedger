@@ -5,7 +5,8 @@ RUN apt-get update && apt-get install -y net-tools \
     iproute2 \
     python3 \
     wget \
-    pwgen
-    
+    pwgen \
+    apache2
+COPY scripts /opt/indy/scripts/
+RUN chmod +x /opt/indy/scripts/change_mtu.bash
 CMD /bin/bash
-EXPOSE 80
