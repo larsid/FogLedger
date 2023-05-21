@@ -1,7 +1,6 @@
 from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
+    Container, VirtualInstance,
     setLogLevel, FogbedDistributedExperiment, Worker
 )
 import time
@@ -56,7 +55,7 @@ if (__name__ == '__main__'):
     for i in range(1,len(indyCloud.ledgers)+1):
         worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
         workers.append(worker)
-        worker.add(indyCloud.ledgers[i], reachable=True)
+        worker.add(indyCloud.ledgers[i-1], reachable=True)
         
     for i, worker in enumerate(workers):
         for j in range(i+1, len(workers)):

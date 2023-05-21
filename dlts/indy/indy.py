@@ -56,7 +56,7 @@ class IndyBasic:
                 dimage='larsid/fogbed-indy-node:v1.0.2-beta',
                 volumes=[
                     f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
-                    f'{f"/tmp/indy/{prefix}/"}:/var/lib/indy/'
+                    f'{f"tmp/indy/{prefix}/"}:/var/lib/indy/'
                 ],
             )
             nodes.append(node)
@@ -99,12 +99,12 @@ class IndyBasic:
         # join the rows with a newline separator to create the CSV text
         text = '\n'.join(rows)
 
-        self.genesis_file_path = f'/tmp/indy/{genesis_file_name}.csv'
+        self.genesis_file_path = f'tmp/indy/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis,
                       delimiter=',', fmt='%s')
 
         for i, node in enumerate(self.nodes):
-            (node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv'))
+            node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv')
             node.cmd(
                 f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
             node.cmd(
