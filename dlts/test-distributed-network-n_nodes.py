@@ -48,12 +48,13 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='ledger',  number_nodes=2)
     workers = []
-    
-    workerCli = exp.add_worker(f'larsid02')
 
-    workerCli.add(indyCloud.cli_instance)
-    workerCli.add(cloud, reachable=True)
+    # Add worker for cli
+    workerServer = exp.add_worker(f'larsid02')
+    workers.append(workerServer)
 
+    workerServer.add(indyCloud.cli_instance)
+    workerServer.add(cloud, reachable=True)
     for i in range(2,len(indyCloud.ledgers)+2):
         worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
         workers.append(worker)
