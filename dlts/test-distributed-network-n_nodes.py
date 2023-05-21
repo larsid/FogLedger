@@ -49,13 +49,15 @@ if (__name__ == '__main__'):
     indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='ledger',  number_nodes=2)
     workers = []
     
-    workerCli = exp.add_worker(f'larsid01')
-    workerCli.add(indyCloud.cli_instance)
+    workerCli = exp.add_worker(f'larsid02')
 
-    for i in range(1,len(indyCloud.ledgers)+1):
+    workerCli.add(indyCloud.cli_instance)
+    workerCli.add(cloud, reachable=True)
+
+    for i in range(2,len(indyCloud.ledgers)+2):
         worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
         workers.append(worker)
-        worker.add(indyCloud.ledgers[i-1], reachable=True)
+        worker.add(indyCloud.ledgers[i-2], reachable=True)
         
     for i, worker in enumerate(workers):
         for j in range(i+1, len(workers)):

@@ -56,8 +56,7 @@ class IndyBasic:
                 name=name,
                 dimage='larsid/fogbed-indy-node:v1.0.2-beta',
                 volumes=[
-                    f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
-                    f"{os.path.abspath('tmp/indy/')}:/var/lib/indy/"
+                    f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv'
                 ],
             )
             nodes.append(node)
