@@ -65,7 +65,7 @@ class IndyBasic:
                 container=node,
                 datacenter=ledger)
         return nodes
-    def _create_dir() -> None: 
+    def _create_dir(self) -> None: 
         if not os.path.exists("tmp/indy/"):   
             os.makedirs("tmp/indy/")
 
