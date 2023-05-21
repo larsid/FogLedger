@@ -46,7 +46,7 @@ if (__name__ == '__main__'):
         datacenter=cloud)
 
     # Define Indy network in cloud
-    indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='ledger',  number_nodes=2)
+    indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='ledger',  number_nodes=4)
     workers = []
 
     # Add worker for cli
@@ -60,10 +60,8 @@ if (__name__ == '__main__'):
         workers.append(worker)
         worker.add(indyCloud.ledgers[i-2], reachable=True)
         
-    for i, worker in enumerate(workers):
-        for j in range(i+1, len(workers)):
-            exp.add_tunnel(worker, workers[j])
-
+    for i in range(len(workers) -1):
+        exp.add_tunnel(workers[i], workers[i+1])
     try:
         exp.start()
         indyCloud.start_network()
