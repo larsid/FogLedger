@@ -4,4 +4,3 @@ RUN apt-get update && apt-get install -y net-tools \
     iputils-ping \
     iproute2 
 CMD /bin/bash
-EXPOSE 80 443 8080 3001 3002

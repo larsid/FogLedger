@@ -44,7 +44,7 @@ class IndyBasic:
         self.cli_instance = self.exp.add_virtual_instance(f'{prefix}_cli')
         self.indy_cli = Container(
             name=f'{prefix}_cli',
-            dimage='larsid/fogbed-indy-cli:v1.0.1-beta'
+            dimage='larsid/fogbed-indy-cli:v1.0.2-beta'
         )
         self.exp.add_docker(
             container=self.indy_cli,
@@ -53,7 +53,7 @@ class IndyBasic:
             name = f'{prefix}{i+1}'
             node = Container(
                 name=name,
-                dimage='larsid/fogbed-indy-node:v1.0.1-beta',
+                dimage='larsid/fogbed-indy-node:v1.0.2-beta',
                 volumes=[
                     f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv',
                     f'{f"/tmp/indy/{prefix}/"}:/var/lib/indy/'

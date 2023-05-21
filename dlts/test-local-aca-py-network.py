@@ -32,7 +32,7 @@ if (__name__ == '__main__'):
 
     webserverContainer = Container(
         name='webserver',
-        dimage='larsid/fogbed-indy-webserver:v1.0.1-beta',
+        dimage='larsid/fogbed-indy-webserver:v1.0.2-beta',
         port_bindings={8000: 9000, 6543: 6543},
         ports=[8000, 6543],
         environment={
