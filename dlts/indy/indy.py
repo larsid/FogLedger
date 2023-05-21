@@ -55,9 +55,6 @@ class IndyBasic:
             node = Container(
                 name=name,
                 dimage='larsid/fogbed-indy-node:v1.0.2-beta',
-                volumes=[
-                    f'{os.path.abspath(self.trustees_path)}:/tmp/indy/trustees.csv'
-                ],
             )
             nodes.append(node)
             self.exp.add_docker(
@@ -67,6 +64,17 @@ class IndyBasic:
     def _create_dir(self) -> None: 
         if not os.path.exists("tmp/indy/"):   
             os.makedirs("tmp/indy/")
+
+    def _get_content_trustees(self) -> str:
+        content = ''
+        with open(self.trustees_path, newline='') as csvfile:
+            # read csv file and save in a string
+            spamreader = csv.reader(csvfile, delimiter=',')
+            for row in spamreader:
+                content += ','.join(row) + '\n'
+        return content
+        
+        
 
     def start_network(self) -> None:
         print('Starting indy network...')
@@ -101,13 +109,14 @@ class IndyBasic:
 
         # join the rows with a newline separator to create the CSV text
         text = '\n'.join(rows)
-
+        trustees_content = self._get_content_trustees()
         self.genesis_file_path = f'tmp/indy/{genesis_file_name}.csv'
         numpy.savetxt(self.genesis_file_path, array_genesis,
                       delimiter=',', fmt='%s')
 
         for i, node in enumerate(self.nodes):
             node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv')
+            node.cmd(f'echo "{trustees_content}" >> /tmp/indy/trustees.csv')
             node.cmd(
                 f'/opt/indy/scripts/genesis_from_files.py --stewards /tmp/indy/{genesis_file_name}.csv --trustees /tmp/indy/trustees.csv')
             node.cmd(
