@@ -24,6 +24,7 @@ class IndyBasic:
         self.genesis_file_path = ''
         self.trustees_path = trustees_path
         self._create_ledgers(prefix, number_nodes)
+        self._create_dir()
 
     def _create_ledgers(self, prefix: str = 'node', number_nodes: int = 4):
         self.ledgers = self._create_virtual_instances(number_nodes, prefix)
@@ -64,6 +65,9 @@ class IndyBasic:
                 container=node,
                 datacenter=ledger)
         return nodes
+    def _create_dir() -> None: 
+        if not os.path.exists("tmp/indy/"):   
+            os.makedirs("tmp/indy/")
 
     def start_network(self) -> None:
         print('Starting indy network...')
