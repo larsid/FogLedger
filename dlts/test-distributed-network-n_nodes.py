@@ -86,12 +86,14 @@ if (__name__ == '__main__'):
         indyCloud.start_network()
         cloud.containers['webserver'].cmd(
             f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+        print('Starting Webserver')
         cloud.containers['webserver'].cmd(
             './scripts/start_webserver.sh > output.log 2>&1 &')
 
         cloud.containers['aca-py'].cmd(
             f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         time.sleep(5)
+        print('Starting ACA-PY')
         cloud.containers['aca-py'].cmd(f"aca-py start \
             --auto-provision \
             -ot http \
@@ -107,9 +109,17 @@ if (__name__ == '__main__'):
             --log-level info > output.log 2>&1 &"
                                        )
         time.sleep(10)
-        print(cloud.containers['aca-py'].cmd(f"curl -X 'GET' \
-            'http://{cloud.containers['aca-py'].ip}:3001/ledger/get-nym-role?did=V4SGRU86Z58d6TV7PBUe6f' \
-            -H 'accept: application/json'"))
+        print('Registering NYM')
+        for i in (range(40)):
+            cloud.containers['aca-py'].cmd(f"curl -X 'POST' \
+                'http://{cloud.containers['aca-py'].ip}:3001/ledger/register-nym?did=LnXR1rPnncTPZvRdmJKhJQ&verkey=BnSWTUQmdYCewSGFrRUhT6LmKdcCcSzRGqWXMPnEP168&role=TRUSTEE' \
+                -H 'accept: application/json'")
+        status_ledgers = cloud.containers['webserver'].cmd(f"curl http://{cloud.containers['webserver'].ip}:8000/status/text")
+        # Save status ledgers in text file
+        with open('status_ledgers.txt', 'w') as f:
+            f.write(status_ledgers)
+        print('Status ledgers saved in status_ledgers.txt')
+
         input('Press any key...')
     except Exception as ex:
         print(ex)

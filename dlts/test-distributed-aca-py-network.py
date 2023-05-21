@@ -37,7 +37,7 @@ if (__name__ == '__main__'):
             'INFO_SITE_TEXT': "Node Container @ GitHub",
             'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
             'LEDGER_SEED': "000000000000000000000000Trustee1",
-            'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis"
+            'GENESIS_FILE': "/pool_transactions_genesis"
         },
         volumes=[
             f'/tmp/indy/cloud:/var/lib/indy/'
