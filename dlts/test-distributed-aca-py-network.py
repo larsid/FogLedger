@@ -128,8 +128,9 @@ if (__name__ == '__main__'):
     try:
         exp.start()
         indyCloud.start_network()
-        webserverContainer.cmd('./scripts/start_webserver.sh > output.log 2>&1 &')
-        time.sleep(10)
+        webserverContainer.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+        print(webserverContainer.cmd('./scripts/start_webserver.sh > output.log 2>&1 &'))
+        
         acaPy1.cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         acaPy1.cmd(f'aca-py start \
         --auto-provision \
