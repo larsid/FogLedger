@@ -1,76 +1,120 @@
 from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
-    setLogLevel,
+    Container, VirtualInstance,
+    setLogLevel, FogbedDistributedExperiment, Worker
 )
-from indy.indy import (IndyBasic)
 import time
 import os
 
+from indy.indy import (IndyBasic)
 setLogLevel('info')
 
 
-def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
-    for device in devices:
-        exp.add_link(device, cloud)
+def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]):
+    for device in datacenters:
+        worker.add(device, reachable=True)
 
 
 if (__name__ == '__main__'):
 
-    exp = FogbedExperiment()
+    exp = FogbedDistributedExperiment()
+
+    # Webserver to check metrics
+    cloud = exp.add_virtual_instance('cloud')
+    instanceWebserver = exp.add_docker(
+        container=Container(
+            name='webserver',
+            dimage='larsid/fogbed-indy-webserver:v1.0.2-beta',
+            port_bindings={8000: 80, 6543: 6543},
+            ports=[8000, 6543],
+            environment={
+                'MAX_FETCH': 50000,
+                'RESYNC_TIME': 120,
+                'WEB_ANALYTICS': True,
+                'REGISTER_NEW_DIDS': True,
+                'LEDGER_INSTANCE_NAME': "fogbed",
+                'INFO_SITE_TEXT': "Node Container @ GitHub",
+                'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
+                'LEDGER_SEED': "000000000000000000000000Trustee1",
+                'GENESIS_FILE': "/pool_transactions_genesis"
+            },
+            volumes=[
+                f'tmp:/var/log/indy',
+            ]
+        ),
+        datacenter=cloud)
+
+    # ACA-PY to make requests to the ledger
+    exp.add_docker(
+        container=Container(
+            name='aca-py',
+            dimage='mnplima/fogbed-aca-py',
+            port_bindings={3002: 3002, 3001: 8080},
+            ports=[3002, 3001],
+            environment={
+                'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
+                'ACAPY_LABEL': "Aries Agent FogLedger",
+                'ACAPY_WALLET_KEY': "secret",
+                'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
+                'ADMIN_PORT': 3001,
+                'AGENT_PORT': 3002
+            }
+        ),
+        datacenter=cloud
+    )
 
     # Define Indy network in cloud
-    indyCloud = IndyBasic(exp=exp, trustees_path = 'indy/tmp/trustees.csv', prefix='cloud',  number_nodes=3)
+    indyCloud = IndyBasic(
+        exp=exp, trustees_path='indy/tmp/trustees.csv', prefix='ledger',  number_nodes=4)
 
-    
-    cloud = exp.add_virtual_instance('cloud')
-    create_links(cloud, indyCloud.ledgers)
-    exp.add_link(cloud, indyCloud.cli_instance)
-
-    # Define Indy network in fog
-    indyFog = IndyBasic(exp=exp, prefix='fog',  number_nodes=3)
-    fog = exp.add_virtual_instance('fog')
-    create_links(fog, indyFog.ledgers)
-
-    webserverContainer = Container(
-        name='webserver',
-        dimage='larsid/fogbed-indy-webserver:v1.0.2-beta',
-        port_bindings={8000: 9000, 6543:6543},
-        ports=[8000, 6543],
-        environment={
-            'MAX_FETCH': 50000,
-            'RESYNC_TIME': 120,
-            'WEB_ANALYTICS': True,
-            'REGISTER_NEW_DIDS': True,
-            'LEDGER_INSTANCE_NAME': "fogbed",
-            'INFO_SITE_TEXT': "Node Container @ GitHub",
-            'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
-            'LEDGER_SEED': "000000000000000000000000Trustee1",
-            'GENESIS_FILE': "/var/lib/indy/fogbed/pool_transactions_genesis"
-        },
-        volumes=[
-            f'/tmp/indy/cloud:/var/lib/indy/'
-        ]
-    )
-    instanceWebserver = exp.add_docker(
-        container=webserverContainer,
-        datacenter=cloud)
+    # Add worker for cli
+    workerServer = exp.add_worker(f'larsid01')
+    workerServer.add(cloud, reachable=True)
+    workerServer.add(indyCloud.cli_instance, reachable=True)
+    for i in range(2, len(indyCloud.ledgers)+2):
+        workerServer.add(indyCloud.ledgers[i-2], reachable=True)
 
     try:
         exp.start()
-
         indyCloud.start_network()
-        indyFog.start_network()
+        cloud.containers['webserver'].cmd(
+            f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+        print('Starting Webserver')
+        cloud.containers['webserver'].cmd(
+            './scripts/start_webserver.sh > output.log 2>&1 &')
 
+        cloud.containers['aca-py'].cmd(
+            f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+        time.sleep(5)
+        print('Starting ACA-PY')
+        cloud.containers['aca-py'].cmd(f"aca-py start \
+            --auto-provision \
+            -ot http \
+            -it http 0.0.0.0 3002 \
+            --admin 0.0.0.0 3001 \
+            -e http://{cloud.containers['aca-py'].ip}:3002 \
+            --admin 0.0.0.0 3001 \
+            --wallet-name fogbed  \
+            --wallet-type indy \
+            --admin-insecure-mode \
+            --debug-credentials \
+            --debug-presentations \
+            --log-level info > output.log 2>&1 &"
+                                       )
         time.sleep(10)
-        print(webserverContainer.cmd('./scripts/start_webserver.sh > output.log 2>&1 &'))
+        print('Registering NYM')
+        for i in (range(40)):
+            cloud.containers['aca-py'].cmd(f"curl -X 'POST' \
+                'http://{cloud.containers['aca-py'].ip}:3001/ledger/register-nym?did=LnXR1rPnncTPZvRdmJKhJQ&verkey=BnSWTUQmdYCewSGFrRUhT6LmKdcCcSzRGqWXMPnEP168&role=TRUSTEE' \
+                -H 'accept: application/json'")
+        status_ledgers = cloud.containers['webserver'].cmd(f"curl http://{cloud.containers['webserver'].ip}:8000/status/text")
+        # Save status ledgers in text file
+        with open('status_ledgers.txt', 'w') as f:
+            f.write(status_ledgers)
+        print('Status ledgers saved in status_ledgers.txt')
 
-        exp.start_cli()
         input('Press any key...')
     except Exception as ex:
         print(ex)
     finally:
         exp.stop()
-
-
