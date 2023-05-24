@@ -48,6 +48,9 @@ if (__name__ == '__main__'):
         container=Container(
             name='test',
             dimage='mnplima/indy-test',
+            volumes=[
+                f'tmp:/indy-sdk/samples/python',
+            ]
         ),
         datacenter=cloud
     )
