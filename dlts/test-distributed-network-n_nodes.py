@@ -82,7 +82,7 @@ if (__name__ == '__main__'):
         time.sleep(10)
         cloud.containers['test'].cmd(f"echo '{indyCloud.genesis_content}' > /indy-sdk/samples/python/src/genesis.txt")
         cloud.containers['test'].cmd(f"python -m src.test_transactions")
-        print(cloud.containers['test'].cmd(f"python -m src.parse_result.py"))
+        print(cloud.containers['test'].cmd(f"python -m src.parse_result"))
 
         
         input('Press any key...')
