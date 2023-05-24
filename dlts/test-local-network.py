@@ -47,18 +47,8 @@ if (__name__ == '__main__'):
     # ACA-PY to make requests to the ledger
     exp.add_docker(
         container=Container(
-            name='aca-py',
-            dimage='mnplima/fogbed-aca-py',
-            port_bindings={3002: 3002, 3001: 8080},
-            ports=[3002, 3001],
-            environment={
-                'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
-                'ACAPY_LABEL': "Aries Agent FogLedger",
-                'ACAPY_WALLET_KEY': "secret",
-                'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
-                'ADMIN_PORT': 3001,
-                'AGENT_PORT': 3002
-            }
+            name='test',
+            dimage='mnplima/indy-test',
         ),
         datacenter=cloud
     )
@@ -80,39 +70,15 @@ if (__name__ == '__main__'):
         cloud.containers['webserver'].cmd(
             f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         print('Starting Webserver')
+        time.sleep(10)
         cloud.containers['webserver'].cmd(
             './scripts/start_webserver.sh > output.log 2>&1 &')
-
-        cloud.containers['aca-py'].cmd(
-            f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
-        time.sleep(5)
-        print('Starting ACA-PY')
-        cloud.containers['aca-py'].cmd(f"aca-py start \
-            --auto-provision \
-            -ot http \
-            -it http 0.0.0.0 3002 \
-            --admin 0.0.0.0 3001 \
-            -e http://{cloud.containers['aca-py'].ip}:3002 \
-            --admin 0.0.0.0 3001 \
-            --wallet-name fogbed  \
-            --wallet-type indy \
-            --admin-insecure-mode \
-            --debug-credentials \
-            --debug-presentations \
-            --log-level info > output.log 2>&1 &"
-                                       )
         time.sleep(10)
-        print('Registering NYM')
-        for i in (range(40)):
-            cloud.containers['aca-py'].cmd(f"curl -X 'POST' \
-                'http://{cloud.containers['aca-py'].ip}:3001/ledger/register-nym?did=LnXR1rPnncTPZvRdmJKhJQ&verkey=BnSWTUQmdYCewSGFrRUhT6LmKdcCcSzRGqWXMPnEP168&role=TRUSTEE' \
-                -H 'accept: application/json'")
-        status_ledgers = cloud.containers['webserver'].cmd(f"curl http://{cloud.containers['webserver'].ip}:8000/status/text")
-        # Save status ledgers in text file
-        with open('status_ledgers.txt', 'w') as f:
-            f.write(status_ledgers)
-        print('Status ledgers saved in status_ledgers.txt')
+        cloud.containers['test'].cmd(f"echo '{indyCloud.genesis_content}' > /indy-sdk/samples/python/src/genesis.txt")
+        cloud.containers['test'].cmd(f"python -m src.test_transactions")
+        print(cloud.containers['test'].cmd(f"python -m src.parse_result.py"))
 
+        
         input('Press any key...')
     except Exception as ex:
         print(ex)
