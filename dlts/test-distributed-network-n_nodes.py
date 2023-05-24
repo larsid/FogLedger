@@ -37,10 +37,7 @@ if (__name__ == '__main__'):
                 'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
                 'LEDGER_SEED': "000000000000000000000000Trustee1",
                 'GENESIS_FILE': "/pool_transactions_genesis"
-            },
-            volumes=[
-                f'tmp:/var/log/indy',
-            ]
+            }
         ),
         datacenter=cloud)
 
@@ -49,7 +46,7 @@ if (__name__ == '__main__'):
             name='test',
             dimage='mnplima/indy-test',
             volumes=[
-                f'tmp:/indy-sdk/samples/python',
+                f'/home/pesquisa/exp:/indy-sdk/samples/python',
             ]
         ),
         datacenter=cloud
