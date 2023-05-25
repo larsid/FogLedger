@@ -59,14 +59,13 @@ if (__name__ == '__main__'):
     workers = []
 
     # Add worker for cli
-    workerServer = exp.add_worker(f'10.128.0.7')
+    workerServer = exp.add_worker(f'34.69.7.94')
     workers.append(workerServer)
-    workers.append(exp.add_worker(f'10.146.0.3'))
-    workers.append(exp.add_worker(f'10.158.0.2'))
-    workers.append(exp.add_worker(f'10.200.0.3'))
-    workers.append(exp.add_worker(f'10.152.0.3'))
+    workers.append(exp.add_worker(f'35.197.175.222'))
+    workers.append(exp.add_worker(f'34.163.250.239'))
+    workers.append(exp.add_worker(f'35.199.100.104'))
+    workers.append(exp.add_worker(f'35.200.43.131'))
     
-
     workerServer.add(indyCloud.cli_instance)
     workerServer.add(cloud, reachable=True)
     for i in range(1, len(workers)):

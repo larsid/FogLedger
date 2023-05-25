@@ -21,6 +21,7 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
     worker1 = exp.add_worker('fog1')
     worker2 = exp.add_worker('fog2')
+
     cloud = exp.add_virtual_instance('cloud')
 
     webserverContainer = Container(
@@ -43,6 +44,7 @@ if (__name__ == '__main__'):
             f'/tmp/indy/cloud:/var/lib/indy/'
         ]
     )
+    
     instanceWebserver = exp.add_docker(
         container=webserverContainer,
         datacenter=cloud)
@@ -50,6 +52,7 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(
         exp=exp, trustees_path='indy/tmp/trustees.csv', prefix='cloud',  number_nodes=4)
+    
 
     acaPy1 = Container(
         name='aca-py1',
@@ -60,7 +63,7 @@ if (__name__ == '__main__'):
             'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 1 Agent",
             'ACAPY_WALLET_KEY': "secret",
-            'ACAPY_WALLET_SEED': "000000000000000000000000Trustee1",
+            'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
         }
@@ -74,7 +77,7 @@ if (__name__ == '__main__'):
             'ACAPY_GENESIS_FILE': "/pool_transactions_genesis",
             'ACAPY_LABEL': "Aries 2 Agent",
             'ACAPY_WALLET_KEY': "secret",
-            'ACAPY_WALLET_SEED': "000000000000000000000000Trustee2",
+            'ACAPY_WALLET_SEED': "000000000000000000000000Trustee3",
             'ADMIN_PORT': 3001,
             'AGENT_PORT': 3002
         }
@@ -124,6 +127,7 @@ if (__name__ == '__main__'):
         worker2, indyCloud.ledgers[len(indyCloud.ledgers)//2:])
     add_datacenters_to_worker(worker1, [edge1, cloud, agent1])
     add_datacenters_to_worker(worker2, [edge2, agent2])
+
     exp.add_tunnel(worker1, worker2)
     try:
         exp.start()

@@ -46,7 +46,7 @@ if (__name__ == '__main__'):
             name='test',
             dimage='mnplima/indy-test',
             volumes=[
-                f'/home/pesquisa/exp:/indy-sdk/samples/python',
+                f'/home/pesquisa/exp/result:/indy-sdk/samples/result',
             ]
         ),
         datacenter=cloud
