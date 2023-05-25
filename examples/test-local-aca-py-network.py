@@ -4,7 +4,7 @@ from fogbed import (
     CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
     setLogLevel,
 )
-from indy.indy import (IndyBasic)
+from fogledger.indy.IndyBasic import (IndyBasic)
 import time
 import os
 
@@ -22,7 +22,7 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='indy/tmp/trustees.csv', prefix='cloud',  number_nodes=3)
+        exp=exp, trustees_path='tmp/trustees.csv', prefix='cloud',  number_nodes=3)
     edge1 = exp.add_virtual_instance('edge')
     edge2 = exp.add_virtual_instance('edge2')
 

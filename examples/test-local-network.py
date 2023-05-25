@@ -6,7 +6,7 @@ from fogbed import (
 import time
 import os
 
-from indy.indy import (IndyBasic)
+from fogledger.indy.IndyBasic import (IndyBasic)
 setLogLevel('info')
 
 
@@ -37,39 +37,33 @@ if (__name__ == '__main__'):
                 'INFO_SITE_URL': "https://github.com/hyperledger/indy-node-container",
                 'LEDGER_SEED': "000000000000000000000000Trustee1",
                 'GENESIS_FILE': "/pool_transactions_genesis"
-            }
+            },
+            volumes=[
+                f'tmp:/var/log/indy',
+            ]
         ),
         datacenter=cloud)
 
+    # ACA-PY to make requests to the ledger
     exp.add_docker(
         container=Container(
             name='test',
             dimage='mnplima/indy-test',
-            volumes=[
-                f'/home/pesquisa/exp/result:/indy-sdk/samples/result',
-            ]
         ),
         datacenter=cloud
     )
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='indy/tmp/trustees.csv', prefix='ledger',  number_nodes=4)
-    workers = []
+        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  number_nodes=4)
 
     # Add worker for cli
-    workerServer = exp.add_worker(f'larsid02')
-    workers.append(workerServer)
-
-    workerServer.add(indyCloud.cli_instance)
+    workerServer = exp.add_worker(f'larsid01')
     workerServer.add(cloud, reachable=True)
+    workerServer.add(indyCloud.cli_instance, reachable=True)
     for i in range(2, len(indyCloud.ledgers)+2):
-        worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
-        workers.append(worker)
-        worker.add(indyCloud.ledgers[i-2], reachable=True)
+        workerServer.add(indyCloud.ledgers[i-2], reachable=True)
 
-    for i in range(1, len(workers)):
-        exp.add_tunnel(workerServer, workers[i])
     try:
         exp.start()
         indyCloud.start_network()

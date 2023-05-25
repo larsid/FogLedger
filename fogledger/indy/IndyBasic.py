@@ -15,7 +15,7 @@ class IndyBasic:
         exp: FogbedExperiment,
         number_nodes: int = 4,
         prefix: str = 'node',
-        trustees_path='indy/tmp/trustees.csv'
+        trustees_path='tmp/trustees.csv'
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
