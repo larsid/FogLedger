@@ -1,4 +1,5 @@
 ![](https://img.shields.io/badge/python-3.8+-blue.svg)
+
 # FogLedger
 
 FogLedger is plugin to Fogbed. It is framework and toolset integration for rapid prototyping of fog components in virtual-ized environments using a desktop approach for DLTs. Its design meets the postulated requirements of low cost, flexible setup and compatibility with real world technologies. The components are based on Mininet network emulator with Docker container instances as fog virtual nodes.
@@ -8,6 +9,7 @@ FogLedger is plugin to Fogbed. It is framework and toolset integration for rapid
 Before installing Fogbed it is necessary to install some dependencies and Containernet, as shown in the steps below:
 
 #### 1. Install Containernet
+
 ```
 sudo apt-get install ansible
 ```
@@ -21,20 +23,20 @@ sudo ansible-playbook -i "localhost," -c local containernet/ansible/install.yml
 ```
 
 #### 2. Install Fogbed
+
 ```
 sudo pip install -U git+https://github.com/EsauM10/fogbed.git
 ```
 
 #### 3. Install FogLedger
+
 ```
 pip install -U git+https://github.com/larsid/FogLedger.git
 ```
 
-
 ## Get Started
-## Preparing Blockchain Test 
 
-
+## Preparing Blockchain Test
 
 ## Run example
 
@@ -42,26 +44,23 @@ pip install -U git+https://github.com/larsid/FogLedger.git
 cd examples
 ```
 
-
 ## Run local network test
+
 ```
 sudo python3 test-local-network.py
 ```
+
 ## Run distributed network test
+
 ```
 sudo python3 test-distributed-network.py
 ```
-
 
 ## Example: A local network with 4 nodes
 
 ```python
 from typing import List
-from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
-)
+from fogbed import (setLogLevel, FogbedDistributedExperiment)
 import time
 import os
 
@@ -83,7 +82,7 @@ if (__name__ == '__main__'):
     for ledger in indyCloud.ledgers:
         worker1.add(ledger)
         worker1.add_link(edge1, ledger)
-    
+
     try:
         exp.start()
         indyCloud.start_network()
