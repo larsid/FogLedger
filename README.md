@@ -51,3 +51,47 @@ sudo python3 test-local-network.py
 ```
 sudo python3 test-distributed-network.py
 ```
+
+
+## Example: A local network with 4 nodes
+
+```python
+from typing import List
+from fogbed import (
+    FogbedExperiment, Container, Resources, Services,
+    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
+    setLogLevel, FogbedDistributedExperiment, Worker
+)
+import time
+import os
+
+from fogledger.indy import (IndyBasic)
+setLogLevel('info')
+
+
+if (__name__ == '__main__'):
+
+    exp = FogbedDistributedExperiment()
+    worker1 = exp.add_worker('fog1')
+
+    # Define Indy network in cloud
+    indyCloud = IndyBasic(
+        exp=exp, trustees_path='examples/tmp/trustees.csv', prefix='cloud',  number_nodes=4)
+
+
+    worker1.add(indyCloud.cli_instance, reachable=True)
+    for ledger in indyCloud.ledgers:
+        worker1.add(ledger)
+        worker1.add_link(edge1, ledger)
+    
+    try:
+        exp.start()
+        indyCloud.start_network()
+        input('Press any key...')
+    except Exception as ex:
+        print(ex)
+    finally:
+        exp.stop()
+
+
+```
