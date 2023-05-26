@@ -18,7 +18,8 @@ setup(
         'Blockchain :: Hyperledger Indy',
     ],
     install_requires = [
-        'fogbed @ https://github.com/EsauM10/fogbed'
+        'fogbed @ https://github.com/EsauM10/fogbed',
+        'numpy>=1.24.2',
     ],
     packages=find_packages(),
     include_package_data=True,
