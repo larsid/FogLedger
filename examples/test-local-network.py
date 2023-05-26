@@ -60,7 +60,6 @@ if (__name__ == '__main__'):
     # Add worker for cli
     workerServer = exp.add_worker(f'larsid01')
     workerServer.add(cloud, reachable=True)
-    workerServer.add(indyCloud.cli_instance, reachable=True)
     for i in range(2, len(indyCloud.ledgers)+2):
         workerServer.add(indyCloud.ledgers[i-2], reachable=True)
 

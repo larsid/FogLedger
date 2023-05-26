@@ -61,7 +61,6 @@ if (__name__ == '__main__'):
 
     worker1.add(edge1, reachable=True)
     worker2.add(edge2, reachable=True)
-    worker2.add(indyCloud.cli_instance, reachable=True)
     for ledger in indyCloud.ledgers:
         worker1.add(ledger)
         worker1.add_link(edge1, ledger)

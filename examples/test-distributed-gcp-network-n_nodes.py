@@ -66,7 +66,6 @@ if (__name__ == '__main__'):
     workers.append(exp.add_worker(f'35.199.100.104'))
     workers.append(exp.add_worker(f'35.200.43.131'))
     
-    workerServer.add(indyCloud.cli_instance)
     workerServer.add(cloud, reachable=True)
     for i in range(1, len(workers)):
         workers[i].add(indyCloud.ledgers[i-1], reachable=True)

@@ -118,8 +118,6 @@ if (__name__ == '__main__'):
         ),
         datacenter=agent2)
     
-    
-    add_datacenters_to_worker(worker1, [indyCloud.cli_instance])
 
     add_datacenters_to_worker(
         worker1, indyCloud.ledgers[:len(indyCloud.ledgers)//2])

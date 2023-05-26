@@ -77,8 +77,6 @@ if (__name__ == '__main__'):
     indyCloud = IndyBasic(
         exp=exp, trustees_path='examples/tmp/trustees.csv', prefix='cloud',  number_nodes=4)
 
-
-    worker1.add(indyCloud.cli_instance, reachable=True)
     for ledger in indyCloud.ledgers:
         worker1.add(ledger)
         worker1.add_link(edge1, ledger)

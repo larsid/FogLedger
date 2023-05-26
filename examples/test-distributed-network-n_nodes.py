@@ -56,7 +56,6 @@ if (__name__ == '__main__'):
     workerServer = exp.add_worker(f'larsid02')
     workers.append(workerServer)
 
-    workerServer.add(indyCloud.cli_instance)
     workerServer.add(cloud, reachable=True)
     for i in range(2, len(indyCloud.ledgers)+2):
         worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
@@ -68,8 +67,7 @@ if (__name__ == '__main__'):
     try:
         exp.start()
         indyCloud.start_network()
-        cloud.containers['webserver'].cmd(
-            f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
+        cloud.containers['webserver'].cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         print('Starting Webserver')
         time.sleep(10)
         cloud.containers['webserver'].cmd(

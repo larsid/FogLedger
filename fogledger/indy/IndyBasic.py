@@ -40,16 +40,6 @@ class IndyBasic:
 
     def _create_nodes(self, prefix: str) -> List[Container]:
         nodes = []
-
-        # Cli to create seeds to nodes
-        self.cli_instance = self.exp.add_virtual_instance(f'{prefix}_cli')
-        self.indy_cli = Container(
-            name=f'{prefix}_cli',
-            dimage='larsid/fogbed-indy-cli:v1.0.2-beta'
-        )
-        self.exp.add_docker(
-            container=self.indy_cli,
-            datacenter=self.cli_instance)
         for i, ledger in enumerate(self.ledgers):
             name = f'{prefix}{i+1}'
             node = Container(
@@ -82,14 +72,13 @@ class IndyBasic:
         for i, node in enumerate(self.nodes):
             node.cmd("rm -rf /var/lib/indy/$NETWORK_NAME")
 
-        self.indy_cli.cmd(
-            f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
         genesis_file_name = uuid.uuid4()
         array_genesis = numpy.array([['Steward name', 'Validator alias', 'Node IP address', 'Node port', 'Client IP address',
                                     'Client port', 'Validator verkey', 'Validator BLS key', 'Validator BLS POP', 'Steward DID', 'Steward verkey']])
         for i, node in enumerate(self.nodes):
-            seed = self.indy_cli.cmd("pwgen -s 32 1")
-            info_cli = self.indy_cli.cmd(
+            seed = node.cmd("pwgen -s 32 1")
+            node.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
+            info_cli = node.cmd(
                 f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
             matches = re.findall(
                 r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)

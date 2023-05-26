@@ -4,7 +4,7 @@ from fogbed import (
     CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
     setLogLevel,
 )
-from fogledger.indy import (IndyBasic)
+from indy.IndyBasic import (IndyBasic)
 import time
 import os
 
@@ -28,7 +28,6 @@ if (__name__ == '__main__'):
 
     cloud = exp.add_virtual_instance('cloud')
     create_links(cloud, indyCloud.ledgers)
-    exp.add_link(cloud, indyCloud.cli_instance)
 
     webserverContainer = Container(
         name='webserver',
@@ -133,6 +132,7 @@ if (__name__ == '__main__'):
         exp.start()
 
         indyCloud.start_network()
+        cloud.containers['webserver'].cmd(f"echo '{indyCloud.genesis_content}' > /pool_transactions_genesis")
         print(webserverContainer.cmd(
             './scripts/start_webserver.sh > output.log 2>&1 &'))
         time.sleep(2)
