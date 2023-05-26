@@ -31,7 +31,7 @@ sudo pip install -U git+https://github.com/EsauM10/fogbed.git
 #### 3. Install FogLedger
 
 ```
-pip install -U git+https://github.com/larsid/FogLedger.git
+sudo pip install -U git+https://github.com/larsid/FogLedger.git
 ```
 
 ## Get Started
@@ -71,7 +71,7 @@ setLogLevel('info')
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker('fog1')
+    worker1 = exp.add_worker('YOUR_HOST_IP or HOST_NAME')
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
