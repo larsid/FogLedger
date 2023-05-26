@@ -1,5 +1,5 @@
 from fogbed import (
-    Container, VirtualInstance, FogbedExperiment
+    Container, VirtualInstance, FogbedDistributedExperiment
 )
 from typing import List
 import csv
@@ -12,7 +12,7 @@ import numpy
 class IndyBasic:
     def __init__(
         self,
-        exp: FogbedExperiment,
+        exp: FogbedDistributedExperiment,
         number_nodes: int = 4,
         prefix: str = 'node',
         trustees_path='tmp/trustees.csv'
