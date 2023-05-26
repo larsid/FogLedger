@@ -4,7 +4,7 @@ from fogbed import (
     CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
     setLogLevel,
 )
-from fogledger.indy.IndyBasic import (IndyBasic)
+from fogledger.indy import (IndyBasic)
 import time
 import os
 

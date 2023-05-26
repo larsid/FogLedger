@@ -1,23 +1,21 @@
 from typing import List
 from fogbed import (
-    Container, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
+    Container,
+    setLogLevel, FogbedDistributedExperiment
 )
 import time
-import os
 
-from fogledger.indy.IndyBasic import (IndyBasic)
+from fogledger.indy import (IndyBasic)
 setLogLevel('info')
-
-
-def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]):
-    for device in datacenters:
-        worker.add(device, reachable=True)
 
 
 if (__name__ == '__main__'):
 
     exp = FogbedDistributedExperiment()
+    # Define Indy network 
+    indyCloud = IndyBasic(
+        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  number_nodes=4)
+    
 
     # Webserver to check metrics
     cloud = exp.add_virtual_instance('cloud')
@@ -52,9 +50,6 @@ if (__name__ == '__main__'):
         datacenter=cloud
     )
 
-    # Define Indy network in cloud
-    indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  number_nodes=4)
     workers = []
 
     # Add worker for cli
