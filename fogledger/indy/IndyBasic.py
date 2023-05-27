@@ -21,7 +21,6 @@ class IndyBasic:
         self.nodes: List[Container] = []
         self.exp = exp
         self.genesis_content = ''
-        self.genesis_file_path = ''
         self.trustees_path = trustees_path
         self._create_ledgers(prefix, number_nodes)
         self._create_dir()
@@ -67,15 +66,13 @@ class IndyBasic:
         
 
     def start_network(self) -> None:
-        print('Starting indy network...')
-        # Remove old files
-        for i, node in enumerate(self.nodes):
-            node.cmd("rm -rf /var/lib/indy/$NETWORK_NAME")
+        print('Initializing Network... ⏳')
 
         genesis_file_name = uuid.uuid4()
         array_genesis = numpy.array([['Steward name', 'Validator alias', 'Node IP address', 'Node port', 'Client IP address',
                                     'Client port', 'Validator verkey', 'Validator BLS key', 'Validator BLS POP', 'Steward DID', 'Steward verkey']])
         for i, node in enumerate(self.nodes):
+            print(f'Configuring {node.name}... ⏳')
             seed = node.cmd("pwgen -s 32 1")
             node.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
             info_cli = node.cmd(
@@ -92,18 +89,17 @@ class IndyBasic:
             lines = aux.splitlines()
             array_genesis = numpy.append(array_genesis, [[node.name, node.name, node.ip, 9701, node.ip, 9702, lines[5].split(
                 ' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
-
+            print(f'Configured {node.name} ✅')
+        print('Configured Nodes ✅')
         # create a list of formatted rows
         rows = [','.join(str(field) for field in row) for row in array_genesis]
 
         # join the rows with a newline separator to create the CSV text
         text = '\n'.join(rows)
         trustees_content = self._get_content_trustees()
-        self.genesis_file_path = f'tmp/indy/{genesis_file_name}.csv'
-        numpy.savetxt(self.genesis_file_path, array_genesis,
-                      delimiter=',', fmt='%s')
 
         for i, node in enumerate(self.nodes):
+            print(f'Starting {node.name}... ⏳')
             node.cmd(f'echo "{text}" >> /tmp/indy/{genesis_file_name}.csv')
             node.cmd(f'echo "{trustees_content}" >> /tmp/indy/trustees.csv')
             node.cmd(
@@ -112,6 +108,7 @@ class IndyBasic:
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
             node.cmd(
                 f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
-
+            print(f'Started {node.name} ✅')
         # save genesis content in memory
         self.genesis_content = self.nodes[0].cmd('cat pool_transactions_genesis')
+        print('Indy Network Started ✅')
