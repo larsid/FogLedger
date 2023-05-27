@@ -51,7 +51,7 @@ if (__name__ == '__main__'):
     
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='cloud',  number_nodes=4)
+        exp=exp, trustees_path='tmp/trustees.csv', prefix='cloud',  nodes_number=4)
     
 
     acaPy1 = Container(

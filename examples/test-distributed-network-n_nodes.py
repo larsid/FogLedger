@@ -14,7 +14,7 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
     # Define Indy network 
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  number_nodes=4)
+        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  nodes_number=4)
     
 
     # Webserver to check metrics

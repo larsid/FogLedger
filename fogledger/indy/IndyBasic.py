@@ -13,7 +13,7 @@ class IndyBasic:
     def __init__(
         self,
         exp: FogbedDistributedExperiment,
-        number_nodes: int = 4,
+        nodes_number: int = 4,
         prefix: str = 'node',
         trustees_path='tmp/trustees.csv'
     ) -> None:
@@ -22,11 +22,11 @@ class IndyBasic:
         self.exp = exp
         self.genesis_content = ''
         self.trustees_path = trustees_path
-        self._create_ledgers(prefix, number_nodes)
+        self._create_ledgers(prefix, nodes_number)
         self._create_dir()
 
-    def _create_ledgers(self, prefix: str = 'node', number_nodes: int = 4):
-        self.ledgers = self._create_virtual_instances(number_nodes, prefix)
+    def _create_ledgers(self, prefix: str = 'node', nodes_number: int = 4):
+        self.ledgers = self._create_virtual_instances(nodes_number, prefix)
         self.nodes = self._create_nodes(prefix)
         return self.ledgers, self.nodes
 
