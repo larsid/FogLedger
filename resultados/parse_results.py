@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import scipy.stats as st
 
 
 def parse_results(path: str) -> dict:
@@ -74,28 +75,44 @@ if __name__ == "__main__":
         calculared_avg[key]['read']['min'] = np.min(
             [c['av'] for c in value['read']])
 
+        read = [c['av'] for c in value['read']]
+        calculared_avg[key]['read']['conf'] = st.t.interval(
+            confidence=0.95, df=len(read)-1, loc=np.mean(read), scale=st.sem(read))
+
+        write = [c['av'] for c in value['write']]
+        calculared_avg[key]['write']['conf'] = st.t.interval(
+            confidence=0.95, df=len(write)-1, loc=np.mean(write), scale=st.sem(read))
+
     open('result_avg_larsid.json', 'w').write(json.dumps(calculared_avg))
 
     # get array of avg of write
-    write_avg = []
-    write_min = []
-    write_max = []
+    data_avg = []
+    data_min = []
+    data_max = []
+    data_conf = []
     for key, value in calculared_avg.items():
-        write_avg.append(value['write']['avg'])
-        write_min.append(value['write']['min'])
-        write_max.append(value['write']['max'])
-    print(write_avg)
-    print(write_min)
-    print(write_max)
+        data_avg.append(value['write']['avg'])
+        data_min.append(value['write']['min'])
+        data_max.append(value['write']['max'])
+        data_conf.append(value['write']['conf'])
+    print('Write')
+    print(data_avg)
+    print(data_min)
+    print(data_max)
+    print(data_conf)
     print('---------------------')
-    # get array of avg of write
-    read_avg = []
-    read_min = []
-    read_max = []
+    print('Read')
+
+    data_avg = []
+    data_min = []
+    data_max = []
+    data_conf = []
     for key, value in calculared_avg.items():
-        read_avg.append(value['read']['avg'])
-        read_min.append(value['read']['min'])
-        read_max.append(value['read']['max'])
-    print(read_avg)
-    print(read_min)
-    print(read_max)
+        data_avg.append(value['read']['avg'])
+        data_min.append(value['read']['min'])
+        data_max.append(value['read']['max'])
+        data_conf.append(value['write']['conf'])
+    print(data_avg)
+    print(data_min)
+    print(data_max)
+    print(data_conf)
