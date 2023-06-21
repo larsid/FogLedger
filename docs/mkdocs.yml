@@ -1,0 +1,72 @@
+site_name: FogLedger
+
+theme:
+  name: material
+  palette:  
+    - scheme: 'default'
+      media: '(prefers-color-scheme: light)'
+      toggle:
+        icon: 'material/lightbulb'
+        name: "Switch to dark mode"
+    - scheme: 'slate'
+      media: '(prefers-color-scheme: auto)'
+      toggle:
+        icon: 'material/lightbulb-outline'
+        name: 'Switch to light mode'
+  features:
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.annotation
+    - content.code.copy
+  language: en
+
+repo_name: larsid/fogledger
+repo_url: https://github.com/larsid/fogledger/
+edit_uri: ""
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/matheusnascimentoti99
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/matheus-nascimento-322a0b181/
+
+copyright: |
+  &copy; 2023 <a href="https://github.com/larsid/fogledger/"  target="_blank" rel="noopener">FogLedger</a>
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Introduction: 'index.md'
+  - Getting started: 'quickstart.md'
+
+  - DLTs:
+    - Hyperledger Indy:
+      - Emulation:
+        - Local Emulation: 'indy/examples/test-local-network.md'
+        - Distributed Emulation: 'indy/examples/test-local-network.py'
+        - Using Webserver Emulation: 'indy/examples/test-local-network.py'
+      - Resources:
+        - Webserver: 'resource.md'
+        - Agente Aries: 'resource.md'
+        - Indy-node: 'resource.md'
+
+
