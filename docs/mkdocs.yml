@@ -35,7 +35,7 @@ extra:
       link: https://www.linkedin.com/in/matheus-nascimento-322a0b181/
 
 copyright: |
-  &copy; 2023 <a href="https://github.com/larsid/fogledger/"  target="_blank" rel="noopener">FogLedger</a>
+  &copy; 2023 <a href="https://github.com/larsid/fogledger/"  target="_blank" rel="noopener">LARSID</a>
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -62,11 +62,8 @@ nav:
     - Hyperledger Indy:
       - Emulation:
         - Local Emulation: 'indy/examples/test-local-network.md'
-        - Distributed Emulation: 'indy/examples/test-local-network.py'
-        - Using Webserver Emulation: 'indy/examples/test-local-network.py'
+        - Using Webserver: 'indy/examples/test-local-webserver-network.md'
+        - Distributed Emulation: 'indy/examples/test-distributed-network.md'
       - Resources:
-        - Webserver: 'resource.md'
-        - Agente Aries: 'resource.md'
-        - Indy-node: 'resource.md'
-
-
+        - Webserver: 'indy/resources/webserve.md'
+    - IOTA Tangle: 'iota/README.md'
