@@ -580,38 +580,38 @@
 <ul>
 <li>Define the hostname or IP address of the hosts where the emulation will run;</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>from typing import List
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>from fogbed import (FogbedDistributedExperiment, Worker
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">fogbed</span> <span class="kn">import</span> <span class="p">(</span><span class="n">FogbedDistributedExperiment</span><span class="p">,</span> <span class="n">Worker</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>from fogledger.indy import (IndyBasic)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">fogledger.indy</span> <span class="kn">import</span> <span class="p">(</span><span class="n">IndyBasic</span><span class="p">)</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>if (__name__ == &#39;__main__&#39;):
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">if</span> <span class="p">(</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    exp = FogbedDistributedExperiment()
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    worker1 = exp.add_worker(&#39;HOST1&#39;)
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    worker2 = exp.add_worker(&#39;HOST2&#39;)
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    worker3 = exp.add_worker(&#39;HOST3&#39;)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">exp</span> <span class="o">=</span> <span class="n">FogbedDistributedExperiment</span><span class="p">()</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">worker1</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">add_worker</span><span class="p">(</span><span class="s1">&#39;HOST1&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">worker2</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">add_worker</span><span class="p">(</span><span class="s1">&#39;HOST2&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">worker3</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">add_worker</span><span class="p">(</span><span class="s1">&#39;HOST3&#39;</span><span class="p">)</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    fog = exp.add_virtual_instance(&#39;fog&#39;)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">fog</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">add_virtual_instance</span><span class="p">(</span><span class="s1">&#39;fog&#39;</span><span class="p">)</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    indyCloud = IndyBasic(exp=exp, trustees_path = &#39;PATH_TO_FILE_TRUSTEES.csv&#39;, prefix=&#39;Node&#39;,  nodes_number=4)
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">indyCloud</span> <span class="o">=</span> <span class="n">IndyBasic</span><span class="p">(</span><span class="n">exp</span><span class="o">=</span><span class="n">exp</span><span class="p">,</span> <span class="n">trustees_path</span> <span class="o">=</span> <span class="s1">&#39;PATH_TO_FILE_TRUSTEES.csv&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;Node&#39;</span><span class="p">,</span>  <span class="n">nodes_number</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    worker1.add(fog, reachable=True)
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">worker1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fog</span><span class="p">,</span> <span class="n">reachable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    for i in range(len(indyCloud.ledgers)/2):
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        worker2.add(indyCloud.ledgers[2*i], reachable=True)
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        worker3.add(indyCloud.ledgers[2*i +1], reachable=True)
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indyCloud</span><span class="o">.</span><span class="n">ledgers</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="n">worker2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">indyCloud</span><span class="o">.</span><span class="n">ledgers</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">],</span> <span class="n">reachable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">worker3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">indyCloud</span><span class="o">.</span><span class="n">ledgers</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">reachable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    exp.add_tunnel(worker1, worker2)
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    exp.add_tunnel(worker1, worker3)
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    try:
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        exp.start()
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        indyCloud.start_network()
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    except Exception as ex:
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        print(ex)
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    finally:
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        exp.stop()
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">exp</span><span class="o">.</span><span class="n">add_tunnel</span><span class="p">(</span><span class="n">worker1</span><span class="p">,</span> <span class="n">worker2</span><span class="p">)</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">exp</span><span class="o">.</span><span class="n">add_tunnel</span><span class="p">(</span><span class="n">worker1</span><span class="p">,</span> <span class="n">worker3</span><span class="p">)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">exp</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>        <span class="n">indyCloud</span><span class="o">.</span><span class="n">start_network</span><span class="p">()</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="n">exp</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="save-the-experiment-code">Save the experiment code</h3>
 <p>Save the code above in a file named <code>test-distributed-network.py</code>.</p>
