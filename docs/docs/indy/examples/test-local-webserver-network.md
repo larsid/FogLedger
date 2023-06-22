@@ -15,7 +15,7 @@ The code below shows how to create a local network of Indy nodes. The network is
 - You need to create a file with the trustees information;
 - Define the hostname or IP address of the host where the emulation will run;
 
-```
+```py
 from typing import List
 from fogbed import (
     Container, VirtualInstance,

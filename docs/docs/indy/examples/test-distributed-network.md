@@ -12,7 +12,7 @@ The code below shows how to create a distributed network of Indy nodes. The netw
 
 - Define the hostname or IP address of the hosts where the emulation will run;
 
-```
+```py
 from typing import List
 from fogbed import (FogbedDistributedExperiment, Worker
 )
