@@ -39,12 +39,11 @@ class IndyBasic:
     def _create_nodes(self, config_nodes: List[dict]) -> List[Container]:
         nodes = []
         for i, ledger in enumerate(self.ledgers):
-            name = config_nodes.values()[i]['name'] if (config_nodes.values()[i]['ip']) else None
-            ip = config_nodes.values()[i]['ip'] if (config_nodes.values()[i]['ip']) else None
             node = Container(
-                name=name,
+                name=config_nodes[i]['name'] if (config_nodes[i]['ip']) else str(i),
                 dimage='larsid/fogbed-indy-node:v1.0.2-beta',
-                ip=ip,
+                ip=config_nodes[i]['ip'] if (config_nodes[i]['ip']) else None,
+                port_bindings=config_nodes[i]['port_bindings'] if (config_nodes[i]['port_bindings']) else {},
             )
             nodes.append(node)
             self.exp.add_docker(
