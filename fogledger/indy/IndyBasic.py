@@ -34,7 +34,7 @@ class IndyBasic:
             self.exp.add_link(device, target)
 
     def _create_virtual_instances(self, config_nodes: List[dict] = []) -> List[VirtualInstance]:
-        return [self.exp.add_virtual_instance(config_nodes.values()[i]['name']) for i in len(config_nodes)]
+        return [self.exp.add_virtual_instance(config['name']) for i, config in enumerate(config_nodes)]
 
     def _create_nodes(self, config_nodes: List[dict]) -> List[Container]:
         nodes = []
