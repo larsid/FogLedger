@@ -7,7 +7,7 @@ setup(
     description='Plugin to build DLTs in Fogbed.',
     long_description='Plugin to build DLT in Fogbed. Suport Hyperledger Indy',
     keywords=['networking', 'emulator', 'protocol', 'Internet', 'dlt', 'indy', 'fog'],
-    url='https://github.com/larsid/FogLedger/tree/v2.0.0',
+    url='https://github.com/larsid/FogLedger',
     author='Matheus Nascimento',
     author_email='matheusnascimentoti99@gmail.com',
     classifiers=[

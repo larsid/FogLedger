@@ -14,7 +14,7 @@ class IndyBasic:
         self,
         exp: FogbedDistributedExperiment,
         trustees_path='tmp/trustees.csv',
-        config_nodes: List[dict[str, str]] = []
+        config_nodes: List[dict] = []
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
@@ -24,7 +24,7 @@ class IndyBasic:
         self._create_ledgers(config_nodes)
         self._create_dir()
 
-    def _create_ledgers(self, config_nodes: List[dict[str, str]] = []):
+    def _create_ledgers(self, config_nodes: List[dict] = []):
         self.ledgers = self._create_virtual_instances(config_nodes)
         self.nodes = self._create_nodes(config_nodes)
         return self.ledgers, self.nodes
@@ -33,10 +33,10 @@ class IndyBasic:
         for device in devices:
             self.exp.add_link(device, target)
 
-    def _create_virtual_instances(self, config_nodes: List[dict[str, str]] = []) -> List[VirtualInstance]:
+    def _create_virtual_instances(self, config_nodes: List[dict] = []) -> List[VirtualInstance]:
         return [self.exp.add_virtual_instance(config_nodes.values()[i]['name']) for i in len(config_nodes)]
 
-    def _create_nodes(self, config_nodes: List[dict[str, str]]) -> List[Container]:
+    def _create_nodes(self, config_nodes: List[dict]) -> List[Container]:
         nodes = []
         for i, ledger in enumerate(self.ledgers):
             name = config_nodes.values()[i]['name'] if (config_nodes.values()[i]['ip']) else None
