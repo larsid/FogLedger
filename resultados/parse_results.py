@@ -2,6 +2,10 @@ import numpy as np
 import json
 import scipy.stats as st
 
+# Import libraries
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 def parse_results(path: str) -> dict:
     # Parse results
@@ -38,13 +42,13 @@ def str_to_dict(string):
 
 if __name__ == "__main__":
     result = []
-    for i in range(1, 10):
-        data = parse_results(f'exp-larsid{i}.txt')
+    for i in range(1, 30):
+        data = parse_results(f'exp-cloud{i}.txt')
         result.append(data)
 
     # get avg of write and read of 1, 50, 100, 150, 200, 250
     avg = {}
-    for i in range(1, 10):
+    for i in range(1, 30):
         for key, value in result[i-1].items():
             if key in avg:
                 avg[key]['write'].append(value['write'])
@@ -54,7 +58,9 @@ if __name__ == "__main__":
 
     # calculate avg of write and read for each 1, 50, 100, 150, 200, 250
     calculared_avg = {}
+    dataBoxPlot = []
     for key, value in avg.items():
+        dataBoxPlot.append([c['av'] for c in value['write']])
         calculared_avg[key] = {}
         calculared_avg[key]['write'] = {}
         calculared_avg[key]['read'] = {}
@@ -82,9 +88,23 @@ if __name__ == "__main__":
         write = [c['av'] for c in value['write']]
         calculared_avg[key]['write']['conf'] = st.t.interval(
             confidence=0.95, df=len(write)-1, loc=np.mean(write), scale=st.sem(read))
+    print(dataBoxPlot)
+ 
+    # Creating axes instance
+    fig = plt.figure(figsize =(10, 7))
+    plt.xlabel('Transaction requests (TX/s)')
+    plt.ylabel('Latency (s)')
+    # fig.set_label()
+    # fig.align_xlabels()
+    # Creating plot
+    plt.boxplot(dataBoxPlot, labels = ['1', '50', '100', '150', '200', '250'])
+    plt.show()
+
+    print('---------------------')
+    print('---------------------')
+    print('---------------------')
 
     open('result_avg_larsid.json', 'w').write(json.dumps(calculared_avg))
-
     # get array of avg of write
     data_avg = []
     data_min = []
