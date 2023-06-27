@@ -13,45 +13,47 @@ class IndyBasic:
     def __init__(
         self,
         exp: FogbedDistributedExperiment,
-        nodes_number: int = 4,
-        prefix: str = 'node',
-        trustees_path='tmp/trustees.csv'
+        trustees_path='tmp/trustees.csv',
+        config_nodes: List[dict[str, str]] = []
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
         self.exp = exp
         self.genesis_content = ''
         self.trustees_path = trustees_path
-        self._create_ledgers(prefix, nodes_number)
+        self._create_ledgers(config_nodes)
         self._create_dir()
 
-    def _create_ledgers(self, prefix: str = 'node', nodes_number: int = 4):
-        self.ledgers = self._create_virtual_instances(nodes_number, prefix)
-        self.nodes = self._create_nodes(prefix)
+    def _create_ledgers(self, config_nodes: List[dict[str, str]] = []):
+        self.ledgers = self._create_virtual_instances(config_nodes)
+        self.nodes = self._create_nodes(config_nodes)
         return self.ledgers, self.nodes
 
     def create_links(self, target: VirtualInstance, devices: List[VirtualInstance]) -> None:
         for device in devices:
             self.exp.add_link(device, target)
 
-    def _create_virtual_instances(self, number: int, prefix: str) -> List[VirtualInstance]:
-        return [self.exp.add_virtual_instance(f'{prefix}{i+1}') for i in range(number)]
+    def _create_virtual_instances(self, config_nodes: List[dict[str, str]] = []) -> List[VirtualInstance]:
+        return [self.exp.add_virtual_instance(config_nodes.values()[i]['name']) for i in len(config_nodes)]
 
-    def _create_nodes(self, prefix: str) -> List[Container]:
+    def _create_nodes(self, config_nodes: List[dict[str, str]]) -> List[Container]:
         nodes = []
         for i, ledger in enumerate(self.ledgers):
-            name = f'{prefix}{i+1}'
+            name = config_nodes.values()[i]['name'] if (config_nodes.values()[i]['ip']) else None
+            ip = config_nodes.values()[i]['ip'] if (config_nodes.values()[i]['ip']) else None
             node = Container(
                 name=name,
                 dimage='larsid/fogbed-indy-node:v1.0.2-beta',
+                ip=ip,
             )
             nodes.append(node)
             self.exp.add_docker(
                 container=node,
                 datacenter=ledger)
         return nodes
-    def _create_dir(self) -> None: 
-        if not os.path.exists("tmp/indy/"):   
+
+    def _create_dir(self) -> None:
+        if not os.path.exists("tmp/indy/"):
             os.makedirs("tmp/indy/")
 
     def _get_content_trustees(self) -> str:
@@ -62,8 +64,6 @@ class IndyBasic:
             for row in spamreader:
                 content += ','.join(row) + '\n'
         return content
-        
-        
 
     def start_network(self) -> None:
         print('Initializing Network... ⏳')
@@ -110,5 +110,6 @@ class IndyBasic:
                 f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
             print(f'Started {node.name} ✅')
         # save genesis content in memory
-        self.genesis_content = self.nodes[0].cmd('cat pool_transactions_genesis')
+        self.genesis_content = self.nodes[0].cmd(
+            'cat pool_transactions_genesis')
         print('Indy Network Started ✅')

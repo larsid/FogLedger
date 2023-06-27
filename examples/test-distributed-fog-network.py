@@ -39,18 +39,18 @@ if (__name__ == '__main__'):
     # Add worker for cli
     workerServer = exp.add_worker(f'larsid02')
     workers.append(workerServer)
+    workers.append(exp.add_worker(f'34.18.59.64', port=80, controller= Controller('34.69.7.94', port=6633)))
+    workers.append(exp.add_worker(f'34.78.188.172', port=80, controller= Controller('34.69.7.94', port=6633)))
+    workers.append(exp.add_worker(f'34.146.249.115', port=80, controller= Controller('34.69.7.94', port=6633)))
     workers.append(exp.add_worker(f'35.197.175.222', port=80, controller= Controller('34.69.7.94', port=6633)))
-    workers.append(exp.add_worker(f'34.163.250.239', port=80, controller= Controller('34.69.7.94', port=6633)))
-    workers.append(exp.add_worker(f'35.199.100.104', port=80, controller= Controller('34.69.7.94', port=6633)))
-    workers.append(exp.add_worker(f'35.200.43.131', port=80, controller= Controller('34.69.7.94', port=6633)))
     
     workerServer.add(cloud, reachable=True)
     for i in range(1, len(workers)):
-        indyCloud.ledgers[i-1].containers[next(iter(indyCloud.ledgers[i-1].containers))].ip = workers[i].ip
-        indyCloud.ledgers[i-1].containers[next(iter(indyCloud.ledgers[i-1].containers))].ports = [9701, 9702]
-        indyCloud.ledgers[i-1].containers[next(iter(indyCloud.ledgers[i-1].containers))].bindings = {9701:9701, 9702:9702}
-        indyCloud.ledgers[i-1].containers
+        indyCloud.nodes[i-1].ip = workers[i].ip
+        indyCloud.nodes[i-1].ports = [9701, 9702]
+        indyCloud.nodes[i-1].bindings = {9701:9701, 9702:9702}
         workers[i].add(indyCloud.ledgers[i-1], reachable=True)
+    print(indyCloud.nodes)
     # for i in range(1, len(workers)):
     #     exp.add_tunnel(workerServer, workers[i])
 
