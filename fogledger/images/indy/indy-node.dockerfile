@@ -16,6 +16,7 @@ RUN apt-get update -y && apt-get install -y \
     net-tools \
     iputils-ping \
     iproute2
+    
 
 # Bionic-security for libssl1.0.0
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3B4FE6ACC0B21F32 \
@@ -37,6 +38,7 @@ RUN pip3 install -U \
 
 
 RUN apt-get update -y && apt-get install -y \
+    indy-cli \
     indy-node="1.13.2~rc5" \
     indy-plenum="1.13.1~rc3" \
     ursa="0.3.2-1" \
