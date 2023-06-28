@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 ENV NETWORK_NAME=fogbed
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update --allow-insecure-repositories -y && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     gnupg2 \
@@ -15,7 +15,9 @@ RUN apt-get update -y && apt-get install -y \
     python3-pip \
     net-tools \
     iputils-ping \
-    iproute2
+    iproute2 \
+    pwgen \
+    --allow-unauthenticated
 
 # Bionic-security for libssl1.0.0
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3B4FE6ACC0B21F32 \
@@ -36,13 +38,13 @@ RUN pip3 install -U \
     'setuptools==50.3.2'
 
 
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update --allow-insecure-repositories -y && apt-get install -y \
     indy-node="1.13.2~rc5" \
     indy-plenum="1.13.1~rc3" \
     ursa="0.3.2-1" \
     python3-pyzmq="22.3.0" \
     rocksdb="5.8.8" \
-    python3-importlib-metadata="3.10.1" \
+    python3-importlib-metadata="3.10.1" --allow-unauthenticated\
     && rm -rf /var/lib/apt/lists/* \
     # fix path to libursa
     && ln -s /usr/lib/ursa/libursa.so /usr/lib/libursa.so
