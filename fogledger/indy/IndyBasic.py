@@ -89,12 +89,15 @@ class IndyBasic:
                 r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
             did = ''
             verkey = ''
+            print(matches)
             if matches:
                 did = matches[0][0]
                 verkey = matches[0][1]
             aux = node.cmd(
                 f'init_indy_node {node.name} {node.ip} 9701 {node.ip} 9702')
+            print(aux)
             lines = aux.splitlines()
+
             array_genesis = numpy.append(array_genesis, [[node.name, node.name, node.ip, 9701, node.ip, 9702, lines[5].split(
                 ' ')[3], lines[9].split(' ')[4], lines[10].split(' ')[7], did, verkey]], axis=0)
             print(f'Configured {node.name} ✅')
