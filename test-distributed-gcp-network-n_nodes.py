@@ -56,25 +56,24 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(
         exp=exp, trustees_path='tmp/trustees.csv', config_nodes=[
-            {'name': 'trustee1', 'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee2', 'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee3', 'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee4', 'port_bindings': {9701: 9701, 9702: 9702}},
+            {'name': 'trustee1', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip':'34.18.59.64'},
+            {'name': 'trustee2', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.78.188.172'},
+            {'name': 'trustee3', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '35.197.175.222'},
+            {'name': 'trustee4', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.146.249.115'},
         ])
     workers = []
 
     # Add worker for cli
     workerServer = exp.add_worker(f'34.95.142.126',  port=80)
-    workers.append(workerServer)
     workers.append(exp.add_worker(f'34.18.59.64', port=80))
     workers.append(exp.add_worker(f'34.78.188.172', port=80))
     workers.append(exp.add_worker(f'35.197.175.222', port=80))
     workers.append(exp.add_worker(f'34.146.249.115', port=80))
 
     workerServer.add(cloud, reachable=True)
-    for i in range(1, len(workers)):
-        workers[i].add(indyCloud.ledgers[i-1], reachable=True)
-    for i in range(1, len(workers)):
+    for i in range(0, len(workers)):
+        workers[i].add(indyCloud.ledgers[i], reachable=True)
+    for i in range(0, len(workers)):
         exp.add_tunnel(workerServer, workers[i])
 
     try:
