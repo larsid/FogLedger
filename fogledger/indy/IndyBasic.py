@@ -39,7 +39,7 @@ class IndyBasic:
     def _create_nodes(self, config_nodes: List[dict]) -> List[Container]:
         nodes = []
         for i, ledger in enumerate(self.ledgers):
-            
+
             name = config_nodes[i]['name'] if (
                 "name" in config_nodes[i]) else str(i)
             
@@ -84,6 +84,7 @@ class IndyBasic:
             node.cmd(f"printf 'wallet create fogbed key=key \nexit\n' | indy-cli")
             info_cli = node.cmd(
                 f"printf 'wallet open fogbed key=key\n did new seed={seed}\nexit\n' | indy-cli")
+            print(info_cli)
             matches = re.findall(
                 r'Did "(\S+)" has been created with "(\S+)" verkey', info_cli)
             did = ''
