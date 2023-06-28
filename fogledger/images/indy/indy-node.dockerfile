@@ -16,7 +16,6 @@ RUN apt-get update -y && apt-get install -y \
     net-tools \
     iputils-ping \
     iproute2
-    
 
 # Bionic-security for libssl1.0.0
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3B4FE6ACC0B21F32 \
@@ -24,7 +23,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3B4FE6ACC0
 
 # Sovrin
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CE7709D068DB5E88 \
-    && bash -c 'echo "deb https://repo.sovrin.org/deb bionic master" >> /etc/apt/sources.list'
+    && echo "deb https://repo.sovrin.org/deb bionic master" >> /etc/apt/sources.list \
+    && echo "deb https://repo.sovrin.org/sdk/deb bionic master" >> /etc/apt/sources.list
 
 # Hyperledger Artifactory
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9692C00E657DDE61 \
@@ -38,8 +38,8 @@ RUN pip3 install -U \
 
 
 RUN apt-get update -y && apt-get install -y \
-    indy-cli \
     indy-node="1.13.2~rc5" \
+    indy-cli \
     indy-plenum="1.13.1~rc3" \
     ursa="0.3.2-1" \
     python3-pyzmq="22.3.0" \
