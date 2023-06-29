@@ -118,7 +118,7 @@ class IndyBasic:
             node.cmd(
                 f'cp domain_transactions_genesis /var/lib/indy/$NETWORK_NAME/ && cp pool_transactions_genesis /var/lib/indy/$NETWORK_NAME/')
             node.cmd(
-                f'start_indy_node {node.name} {node.ip} 9701 {node.ip} 9702 > output.log 2>&1 &')
+                f'start_indy_node {node.name} 0.0.0.0 9701 0.0.0.0 9702 > output.log 2>&1 &')
             print(f'Started {node.name} ✅')
         # save genesis content in memory
         self.genesis_content = self.nodes[0].cmd(

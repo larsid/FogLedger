@@ -14,7 +14,7 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
     # Define Indy network 
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  nodes_number=4)
+        exp=exp, trustees_path='examples/tmp/trustees.csv', prefix='ledger',  nodes_number=4)
     
 
     # Webserver to check metrics
@@ -57,10 +57,13 @@ if (__name__ == '__main__'):
     workers.append(workerServer)
 
     workerServer.add(cloud, reachable=True)
-    for i in range(2, len(indyCloud.ledgers)+2):
-        worker = exp.add_worker(f'larsid{str(i+1).zfill(2)}')
-        workers.append(worker)
-        worker.add(indyCloud.ledgers[i-2], reachable=True)
+
+    workers.append(exp.add_worker(f'larsid03'))
+    workers.append(exp.add_worker(f'larsid05'))
+    workers.append(exp.add_worker(f'larsid06'))
+    workers.append(exp.add_worker(f'larsid14'))
+    for i in range(len(indyCloud.ledgers)):
+        workers[i+1].add(indyCloud.ledgers[i], reachable=True)
 
     for i in range(1, len(workers)):
         exp.add_tunnel(workerServer, workers[i])

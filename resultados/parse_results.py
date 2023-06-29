@@ -42,13 +42,13 @@ def str_to_dict(string):
 
 if __name__ == "__main__":
     result = []
-    for i in range(1, 30):
-        data = parse_results(f'exp-cloud{i}.txt')
+    for i in range(1, 10):
+        data = parse_results(f'exp-fog{i}.txt')
         result.append(data)
 
     # get avg of write and read of 1, 50, 100, 150, 200, 250
     avg = {}
-    for i in range(1, 30):
+    for i in range(1, 10):
         for key, value in result[i-1].items():
             if key in avg:
                 avg[key]['write'].append(value['write'])
@@ -92,8 +92,9 @@ if __name__ == "__main__":
  
     # Creating axes instance
     fig = plt.figure(figsize =(10, 7))
-    plt.xlabel('Transaction requests (TX/s)')
-    plt.ylabel('Latency (s)')
+    plt.ylim([0, 12])
+    plt.xlabel('Transaction requests (TX/s)', fontsize=18)
+    plt.ylabel('Latency (s)', fontsize=18)
     # fig.set_label()
     # fig.align_xlabels()
     # Creating plot
@@ -104,7 +105,7 @@ if __name__ == "__main__":
     print('---------------------')
     print('---------------------')
 
-    open('result_avg_larsid.json', 'w').write(json.dumps(calculared_avg))
+    open('result_avg_larsid_cloud.json', 'w').write(json.dumps(calculared_avg))
     # get array of avg of write
     data_avg = []
     data_min = []
