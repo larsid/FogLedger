@@ -19,30 +19,30 @@ jobs:
       - name: Build and push Node
         uses: docker/build-push-action@v4
         with:
-          context: ./dlts/images/indy
-          file: ./dlts/images/indy/indy-node.dockerfile
+          context: ./fogledger/images/indy
+          file: ./fogledger/images/indy/indy-node.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-node:${{  github.ref_name }}
       - name: Build and push Cli
         uses: docker/build-push-action@v4
         with:
-          context: ./dlts/images/indy
-          file: ./dlts/images/indy/indy-cli.dockerfile
+          context: ./fogledger/images/indy
+          file: ./fogledger/images/indy/indy-cli.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-cli:${{  github.ref_name }}
 
       - name: Build and push Webserver
         uses: docker/build-push-action@v4
         with:
-          context: ./dlts/images/indy
-          file: ./dlts/images/indy/webserver.dockerfile
+          context: ./fogledger/images/indy
+          file: ./fogledger/images/indy/webserver.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-indy-webserver:${{  github.ref_name }}
 
       - name: Build and push httpd
         uses: docker/build-push-action@v4
         with:
-          context: ./dlts/images/indy
-          file: ./dlts/images/indy/httpd.dockerfile
+          context: ./fogledger/images/indy
+          file: ./fogledger/images/indy/httpd.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-httpd:${{  github.ref_name }}
