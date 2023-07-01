@@ -1,7 +1,7 @@
 from typing import List
 from fogbed import (
     Container, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
+    setLogLevel, FogbedDistributedExperiment, Worker, Controller
 )
 import time
 import os
@@ -25,8 +25,7 @@ if (__name__ == '__main__'):
         container=Container(
             name='webserver',
             dimage='larsid/fogbed-indy-webserver:v1.0.2-beta',
-            port_bindings={8000: 80, 6543: 6543},
-            ports=[8000, 6543],
+            port_bindings={8000: 8080, 6543: 6543},
             environment={
                 'MAX_FETCH': 50000,
                 'RESYNC_TIME': 120,
@@ -40,36 +39,33 @@ if (__name__ == '__main__'):
             },
             volumes=[
                 f'tmp:/var/log/indy',
-            ]
+            ],
+            ip='34.95.142.126'
         ),
         datacenter=cloud)
 
-    # ACA-PY to make requests to the ledger
-    exp.add_docker(
-        container=Container(
-            name='test',
-            dimage='mnplima/indy-test',
-        ),
-        datacenter=cloud
-    )
-
+    
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  nodes_number=4)
+        exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes=[
+            {'name': 'node1', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip':'35.199.124.171'},
+            {'name': 'node2', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.76.173.182'},
+            {'name': 'node3', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.87.194.83'},
+            {'name': 'node4', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '35.189.132.181'},
+        ])
     workers = []
 
     # Add worker for cli
-    workerServer = exp.add_worker(f'34.69.7.94')
-    workers.append(workerServer)
-    workers.append(exp.add_worker(f'35.197.175.222'))
-    workers.append(exp.add_worker(f'34.163.250.239'))
-    workers.append(exp.add_worker(f'35.199.100.104'))
-    workers.append(exp.add_worker(f'35.200.43.131'))
-    
+    workerServer = exp.add_worker(f'146.148.47.210')
+    workers.append(exp.add_worker(f'35.199.124.171'))
+    workers.append(exp.add_worker(f'34.76.173.182'))
+    workers.append(exp.add_worker(f'34.87.194.83'))
+    workers.append(exp.add_worker(f'35.189.132.181'))
+
     workerServer.add(cloud, reachable=True)
-    for i in range(1, len(workers)):
-        workers[i].add(indyCloud.ledgers[i-1], reachable=True)
-    for i in range(1, len(workers)):
+    for i in range(0, len(workers)):
+        workers[i].add(indyCloud.ledgers[i], reachable=True)
+    for i in range(0, len(workers)):
         exp.add_tunnel(workerServer, workers[i])
 
     try:
@@ -81,12 +77,6 @@ if (__name__ == '__main__'):
         time.sleep(10)
         cloud.containers['webserver'].cmd(
             './scripts/start_webserver.sh > output.log 2>&1 &')
-        time.sleep(10)
-        cloud.containers['test'].cmd(f"echo '{indyCloud.genesis_content}' > /indy-sdk/samples/python/src/genesis.txt")
-        cloud.containers['test'].cmd(f"python -m src.test_transactions")
-        print(cloud.containers['test'].cmd(f"python -m src.parse_result"))
-
-        
         input('Press any key...')
     except Exception as ex:
         print(ex)
