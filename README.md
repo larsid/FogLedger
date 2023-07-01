@@ -75,7 +75,12 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='examples/tmp/trustees.csv', prefix='cloud',  nodes_number=4)
+        exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes=[
+            {'name': 'node1'},
+            {'name': 'node2'},
+            {'name': 'node3'},
+            {'name': 'node4'},
+        ])
 
     for ledger in indyCloud.ledgers:
         worker1.add(ledger)
