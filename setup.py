@@ -10,15 +10,12 @@ setup(
     url='https://github.com/larsid/FogLedger',
     author='Matheus Nascimento',
     author_email='matheusnascimentoti99@gmail.com',
-    classifiers=[
-        'Intended Audience :: Developers',
-        'Programming Language :: Python 3.8',
-        'Topic :: System :: Emulators'
-        'Operating System :: Ubunbu OS',
-        'Blockchain :: Hyperledger Indy',
+    classifiers = [
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
     install_requires = [
-        'fogbed @ https://github.com/EsauM10/fogbed',
         'numpy>=1.24.2',
     ],
     packages=find_packages(),

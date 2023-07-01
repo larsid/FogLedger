@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: fogLedger
+Version: 1.1.2
+Summary: Plugin to build DLTs in Fogbed.
+Home-page: https://github.com/larsid/FogLedger
+Author: Matheus Nascimento
+Author-email: matheusnascimentoti99@gmail.com
+Keywords: networking,emulator,protocol,Internet,dlt,indy,fog
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+
+Plugin to build DLT in Fogbed. Suport Hyperledger Indy
