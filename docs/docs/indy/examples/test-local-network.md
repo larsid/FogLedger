@@ -39,7 +39,12 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='PATH_TO_FILE_TRUSTEES.csv', prefix='ledger',  nodes_number=4)
+        exp=exp, trustees_path='PATH_TO_FILE_TRUSTEES.csv', config_nodes=[
+            {'name': 'node1'},
+            {'name': 'node2'},
+            {'name': 'node3'},
+            {'name': 'node4'},
+        ])
 
     # Add worker for cli
     workerServer = exp.add_worker(f'HOSTNAME_OR_IP_ADDRESS')

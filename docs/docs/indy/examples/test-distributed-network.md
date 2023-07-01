@@ -27,11 +27,16 @@ if (__name__ == '__main__'):
     worker3 = exp.add_worker('HOST3')
 
     fog = exp.add_virtual_instance('fog')
-    
-    indyCloud = IndyBasic(exp=exp, trustees_path = 'PATH_TO_FILE_TRUSTEES.csv', prefix='Node',  nodes_number=4)
+
+    indyCloud = IndyBasic(exp=exp, trustees_path = 'PATH_TO_FILE_TRUSTEES.csv', config_nodes=[
+            {'name': 'node1'},
+            {'name': 'node2'},
+            {'name': 'node3'},
+            {'name': 'node4'},
+        ])
 
     worker1.add(fog, reachable=True)
-    
+
     for i in range(len(indyCloud.ledgers)/2):
         worker2.add(indyCloud.ledgers[2*i], reachable=True)
         worker3.add(indyCloud.ledgers[2*i +1], reachable=True)
