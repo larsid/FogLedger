@@ -595,29 +595,29 @@
 <h2 id="1-install">1. Install</h2>
 <p>Before installing Fogbed it is necessary to install some dependencies and Containernet, as shown in the steps below:</p>
 <h4 id="1-install-containernet">1. Install Containernet</h4>
-<pre><code>sudo apt-get install ansible
-</code></pre>
-<pre><code>git clone https://github.com/containernet/containernet.git
-</code></pre>
-<pre><code>sudo ansible-playbook -i &quot;localhost,&quot; -c local containernet/ansible/install.yml
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo apt-get install ansible
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git clone https://github.com/containernet/containernet.git
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo ansible-playbook -i &quot;localhost,&quot; -c local containernet/ansible/install.yml
+</code></pre></div>
 <h4 id="2-install-fogbed">2. Install Fogbed</h4>
-<pre><code>sudo pip install -U git+https://github.com/EsauM10/fogbed.git
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>sudo pip install -U git+https://github.com/EsauM10/fogbed.git
+</code></pre></div>
 <h4 id="3-install-fogledger">3. Install FogLedger</h4>
-<pre><code>sudo pip install fogLedger
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo pip install fogLedger
+</code></pre></div>
 <h2 id="2-run-example">2. Run example</h2>
-<pre><code>mkdir example
-cd example
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>mkdir example
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cd example
+</code></pre></div>
 <h3 id="1-download-example">1. Download example</h3>
-<pre><code>wget https://raw.githubusercontent.com/larsid/FogLedger/main/examples/test-local-network.py
-wget https://github.com/larsid/FogLedger/blob/main/examples/tmp/trustees.csv -o ./tmp/trustees.csv
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>wget https://raw.githubusercontent.com/larsid/FogLedger/main/examples/test-local-network.py
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>wget https://github.com/larsid/FogLedger/blob/main/examples/tmp/trustees.csv -o ./tmp/trustees.csv
+</code></pre></div>
 <h3 id="2-run-local-network">2. Run local network</h3>
-<pre><code>sudo python3 test-local-network.py
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo python3 test-local-network.py
+</code></pre></div>
 
 
 
@@ -691,7 +691,7 @@ wget https://github.com/larsid/FogLedger/blob/main/examples/tmp/trustees.csv -o 
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": ["stable", "development"]}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.a51614de.min.js"></script>
