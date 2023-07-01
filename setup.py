@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fogLedger",
-    version="2.0.0",
+    version="2.0.2",
     description='Plugin to build DLTs in Fogbed.',
     long_description='Plugin to build DLT in Fogbed. Suport Hyperledger Indy',
     keywords=['networking', 'emulator', 'protocol', 'Internet', 'dlt', 'indy', 'fog'],
