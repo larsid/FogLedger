@@ -1,0 +1,7 @@
+config/*
+snapshots/*
+!snapshots/private-tangle/full_snapshot.bin
+
+address.txt
+key-pair.txt
+coo-milestones-public-key.txt

@@ -8,7 +8,6 @@ import json
 import time
 import subprocess
 
-
 class IotaBasic:
     def __init__(
         self,
