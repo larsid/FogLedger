@@ -13,7 +13,7 @@ class IotaBasic:
         self,
         exp: FogbedExperiment,
         prefix: str = 'cloud',
-        nodes: List[str] = []
+        nodes: List[Dict[str, str]] = []
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
@@ -41,10 +41,10 @@ class IotaBasic:
         with open(file_path, 'r') as file:
             return file.read()
 
-    def startScript(self, nodes: List[str]):
+    def startScript(self, nodes: List[Dict[str, str]]):
         print("starting script...")
-        concatenated_string = ":".join(nodes)
-        print(concatenated_string)
+        node_names = [node['name'] for node in nodes]
+        concatenated_string = ":".join(node_names)
         path_script = os.path.abspath('images/iota/scripts/')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
@@ -55,10 +55,18 @@ class IotaBasic:
     def createContainers(self, nodes: List[str]):
         ### NODES ###
         for index, nodeLabel in enumerate(nodes):
+            name = nodeLabel['name'] if (
+                "name" in nodeLabel) else str(index)
+            
+            ip = nodeLabel['ip'] if ("ip" in nodeLabel) else None
+            
+            port_bindings = nodeLabel['port_bindings'] if ("port_bindings" in nodeLabel) else {}
+            
             node = Container(
-                name=nodeLabel,
+                name=name,
                 dimage='hornet',
-                #port_bindings={'8081': f'808{index}'},
+                ip=ip,
+                port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
             )
             self.add_ledger(f'ledger-{node.name}', [node])
