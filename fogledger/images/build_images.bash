@@ -6,4 +6,4 @@ docker build -f ./indy/webserver.dockerfile -t webserver ./indy
 docker build -f ./indy/aca-py.dockerfile -t aca-py ./indy
 docker build -f ./indy/httpd.dockerfile -t httpd-fogbed ./indy
 
-docker build -f ./iota/dockerfile -t hornet ./iota
+docker build -f ./iota/iota.dockerfile -t hornet ./iota

@@ -64,7 +64,7 @@ class IotaBasic:
             
             node = Container(
                 name=name,
-                dimage='hornet',
+                dimage='larsid/iota-node:v3.0.0-beta',
                 ip=ip,
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
@@ -74,7 +74,7 @@ class IotaBasic:
         ### COO ###
         coo = Container(
             name='coo',
-            dimage='hornet',
+            dimage='larsid/iota-node:v3.0.0-beta',
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
@@ -83,7 +83,7 @@ class IotaBasic:
         ### spammer ###
         spammer = Container(
             name="spammer",
-            dimage='hornet',
+            dimage='larsid/iota-node:v3.0.0-beta',
             ports=['15600', '14626/udp']
         )
         self.add_ledger(f'ledger-{spammer.name}', [spammer])
