@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fogLedger",
-    version="3.0.0-beta",
+    version="3.0.4-beta",
     description='Plugin to build DLTs in Fogbed.',
     long_description='Plugin to build DLT in Fogbed. Suport Hyperledger Indy. \
         The FogLedger is a plugin for [Fogbed](https://github.com/larsid/fogbed). It allows you to emulate a fog network with distributed ledgers. \
@@ -29,5 +29,6 @@ setup(
     ],
     packages=find_packages(),
     include_package_data=True,
-    zip_safe=False
+    zip_safe=False,
+    package_data={'fogledger': ['data/*.sh']}
 )

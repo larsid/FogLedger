@@ -1,9 +1,9 @@
-from fogledger.iota.IotaBasic import (IotaBasic)
+from fogledger.iota import (IotaBasic)
 from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
+    FogbedExperiment, Container, Resources,
     CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
+    setLogLevel, FogbedDistributedExperiment, Worker, Controller
 )
 
 setLogLevel('info')
@@ -14,11 +14,16 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
 
 if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker('fog1')
-    worker2 = exp.add_worker('fog2')
-    nodes = ['node1', 'node2', 'node3', 'node4']
+    worker1 = exp.add_worker('18.116.147.71', controller=Controller('18.116.147.71', 6633))
+    worker2 = exp.add_worker('3.130.81.242',  controller=Controller('18.116.147.71', 6633))
     
-    iota = IotaBasic(exp=exp, prefix='fog', nodes=nodes)
+    config_nodes=[
+            {'name': 'node1'},
+            {'name': 'node2'},
+            {'name': 'node3'},
+            {'name': 'node4'},
+        ]
+    iota = IotaBasic(exp=exp, prefix='fog', nodes=config_nodes)
 
     add_datacenters_to_worker(worker1, iota.ledgers[:len(iota.ledgers)//2])
     add_datacenters_to_worker(worker2, iota.ledgers[len(iota.ledgers)//2:])

@@ -7,6 +7,8 @@ import os
 import json
 import time
 import subprocess
+import pkg_resources
+
 
 class IotaBasic:
     def __init__(
@@ -45,7 +47,7 @@ class IotaBasic:
         print("starting script...")
         node_names = [node['name'] for node in nodes]
         concatenated_string = ":".join(node_names)
-        path_script = os.path.abspath('images/iota/scripts/')
+        path_script = pkg_resources.resource_filename('fogledger', 'data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
         subprocess.run(["/bin/bash", path_private_tangle, "install",

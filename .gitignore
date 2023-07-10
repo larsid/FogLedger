@@ -1,6 +1,7 @@
 __pycache__/
 .pytest_cache/
 tests/
+fogLedger.egg-info/
 
 main.py
 stats.txt
