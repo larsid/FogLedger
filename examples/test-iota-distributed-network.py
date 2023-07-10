@@ -18,10 +18,10 @@ if (__name__ == '__main__'):
     worker2 = exp.add_worker('3.130.81.242',  controller=Controller('18.116.147.71', 6633))
     
     config_nodes=[
-            {'name': 'node1'},
-            {'name': 'node2'},
-            {'name': 'node3'},
-            {'name': 'node4'},
+            {'name': 'node1', 'port_bindings':{'8081':'8080'}},
+            {'name': 'node2', 'port_bindings':{'8081':'8080'}},
+            {'name': 'node3', 'port_bindings':{'8081':'8080'}},
+            {'name': 'node4', 'port_bindings':{'8081':'8080'}},
         ]
     iota = IotaBasic(exp=exp, prefix='fog', nodes=config_nodes)
 

@@ -51,12 +51,11 @@ clean () {
 
 # Sets up the necessary directories if they do not exist yet
 volumeSetup () {
-  ## Directories for the Tangle DB files
-  if ! [ -d temp/iota ]; then
-    mkdir ./iota
-  else
-    cd temp/iota
-  fi
+  mkdir -p "/tmp/iota/config"
+  cp -r config-node.json "/tmp/iota/config/config-node.json"
+  cp -r config-coo.json "/tmp/iota/config/config-coo.json"
+  cp -r config-spammer.json "/tmp/iota/config/config-spammer.json"
+  cd "/tmp/iota"
 
   if ! [ -d ./config ]; then
     mkdir ./config

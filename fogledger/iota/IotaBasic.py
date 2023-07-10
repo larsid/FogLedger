@@ -66,7 +66,7 @@ class IotaBasic:
             
             node = Container(
                 name=name,
-                dimage='larsid/iota-node:v3.0.0-beta',
+                dimage='larsid/fogbed-iota-node:v3.0.0-beta',
                 ip=ip,
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
@@ -76,7 +76,7 @@ class IotaBasic:
         ### COO ###
         coo = Container(
             name='coo',
-            dimage='larsid/iota-node:v3.0.0-beta',
+            dimage='larsid/fogbed-iota-node:v3.0.0-beta',
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
@@ -85,7 +85,7 @@ class IotaBasic:
         ### spammer ###
         spammer = Container(
             name="spammer",
-            dimage='larsid/iota-node:v3.0.0-beta',
+            dimage='larsid/fogbed-iota-node:v3.0.0-beta',
             ports=['15600', '14626/udp']
         )
         self.add_ledger(f'ledger-{spammer.name}', [spammer])
@@ -130,10 +130,12 @@ class IotaBasic:
             coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
             coo_public_key = coo.cmd(
                 f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-            os.system(
-                f'echo {coo_public_key} > {os.path.abspath("iota/coo-milestones-public-key.txt")}'.format(coo_public_key))
+            
+            file_path = os.path.join("/tmp", "iota")
+            command = f'echo {coo_public_key} > {file_path}/coo-milestones-public-key.txt'
+            os.system(command)
             for node in self.nodes.values():
-                json_data = IotaBasic.read_file(os.path.abspath(f"iota/config/config-{node.name}.json"))
+                json_data = IotaBasic.read_file(f"{file_path}/config/config-{node.name}.json")
                 json_data = json.loads(json_data)
                 json_data["protocol"]["publicKeyRanges"][0]["key"] = coo_public_key
                 updated_data = json.dumps(json_data)
@@ -145,12 +147,13 @@ class IotaBasic:
     def copySnapshotToNodes(self):
         print("\nCopying snapshot to each node")
         # Executar o comando base64 no arquivo full_snapshot.bin e capturar a saída
-        command = f"base64 {os.path.abspath('iota/snapshots/private-tangle/full_snapshot.bin')}"
+        file_path = os.path.join("/tmp", "iota", "snapshots", "private-tangle","full_snapshot.bin")
+        command = f"base64 {file_path}"
         output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout
-
+        print(output)
         # Salvar a saída em uma variável
         output_b64 = output.strip()
-
+        print("veio")
         for node in self.nodes.values():
             node.cmd("mkdir -p /app/snapshots/private-tangle")
             node.cmd(f"echo '{output_b64}' | base64 -d > /app/snapshots/private-tangle/full_snapshot.bin")
