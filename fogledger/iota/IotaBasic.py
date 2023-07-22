@@ -61,13 +61,10 @@ class IotaBasic:
 
     def createContainers(self, nodes: List[str]):
         ### NODES ###
-        for index, nodeLabel in enumerate(nodes):
-            name = nodeLabel['name'] if (
-                "name" in nodeLabel) else str(index)
-            
-            ip = nodeLabel['ip'] if ("ip" in nodeLabel) else None
-            
-            port_bindings = nodeLabel['port_bindings'] if ("port_bindings" in nodeLabel) else {}
+        for index, node_conf in enumerate(self.conf_nodes):
+            name = node_conf.name
+            ip = node_conf.ip
+            port_bindings = node_conf.port_bindings
             
             node = Container(
                 name=name,
@@ -76,11 +73,13 @@ class IotaBasic:
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
             )
-            self.add_ledger(f'ledger-{node.name}', [node])
+            self.add_ledger(f'ledger-{name}{index}', [node])
 
         ### COO ###
         coo = Container(
-            name='coo',
+            name=self.conf_coord.name,
+            ip = self.conf_coord.ip,
+            port_bindings = self.conf_coord.port_bindings,
             dimage='larsid/fogbed-iota-node:v3.0.0-beta',
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
@@ -89,7 +88,9 @@ class IotaBasic:
 
         ### spammer ###
         spammer = Container(
-            name="spammer",
+            name= self.conf_spammer.name,
+            ip = self.conf_spammer.ip,
+            port_bindings = self.conf_spammer.port_bindings,
             dimage='larsid/fogbed-iota-node:v3.0.0-beta',
             ports=['15600', '14626/udp']
         )
@@ -99,6 +100,20 @@ class IotaBasic:
         for node in self.nodes.values():
             if node.name == node_name:
                 return node
+    
+    def configureNodes(self):
+        print("\nConfiguring nodes...")
+        for node in self.nodes.values():
+            json_data = node.cmd(f'cat /app/config.json').strip("> >")
+            json_data = json.loads(json_data)
+            json_data["node"]["alias"] = node.name
+            if(node.name == self.conf_coord.name):
+                json_data["coordinator"]["interval"] = self.conf_coord.interval
+            if(node.name == self.conf_spammer.name):
+                json_data["spammer"]["message"] = self.conf_spammer.message
+            updated_data = json.dumps(json_data)
+            node.cmd(f"echo \'{updated_data}\' | jq . > /app/config.json")
+        print("Nodes configured! ✅")
 
     # P2P identities are generated for each node
     def setupIdentities(self):
@@ -126,7 +141,7 @@ class IotaBasic:
     def setupCoordinator(self):
         print("\nSetting up the Coordinator")
         coo_key_pair_file = "coo-milestones-key-pair.txt"
-        coo = self.searchNode("coo")
+        coo = self.searchNode(self.conf_coord.name)
         if coo is not None:
             coo.cmd('mkdir -p /app/coo-state')
             coo.cmd(f'./hornet tool ed25519-key > {coo_key_pair_file}')
@@ -135,12 +150,11 @@ class IotaBasic:
             coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
             coo_public_key = coo.cmd(
                 f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-            
             file_path = os.path.join("/tmp", "iota")
             command = f'echo {coo_public_key} > {file_path}/coo-milestones-public-key.txt'
             os.system(command)
+            json_data = IotaBasic.read_file(f"{file_path}/config/config-node.json")
             for node in self.nodes.values():
-                json_data = IotaBasic.read_file(f"{file_path}/config/config-{node.name}.json")
                 json_data = json.loads(json_data)
                 json_data["protocol"]["publicKeyRanges"][0]["key"] = coo_public_key
                 updated_data = json.dumps(json_data)
@@ -155,10 +169,8 @@ class IotaBasic:
         file_path = os.path.join("/tmp", "iota", "snapshots", "private-tangle","full_snapshot.bin")
         command = f"base64 {file_path}"
         output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout
-        print(output)
         # Salvar a saída em uma variável
         output_b64 = output.strip()
-        print("veio")
         for node in self.nodes.values():
             node.cmd("mkdir -p /app/snapshots/private-tangle")
             node.cmd(f"echo '{output_b64}' | base64 -d > /app/snapshots/private-tangle/full_snapshot.bin")
@@ -169,7 +181,7 @@ class IotaBasic:
     def bootstrapCoordinator(self):
         print("Bootstrapping the Coordinator...")
         # Need to do it again otherwise the coo will not bootstrap
-        coo = self.searchNode("coo")
+        coo = self.searchNode(self.conf_coord.name)
         if coo is not None:
             coo.cmd(
                 f'./hornet --cooBootstrap --cooStartIndex 0 > coo.bootstrap.log &')
@@ -197,6 +209,7 @@ class IotaBasic:
 
     def start_network(self):
         print("\nStarting the network...")
+        self.configureNodes()
         self.setupIdentities()
         self.extractPeerID()
         self.copySnapshotToNodes()

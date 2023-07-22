@@ -26,10 +26,6 @@ command="$1"
 ip_address=$(echo $(dig +short myip.opendns.com @resolver1.opendns.com))
 COO_BOOTSTRAP_WAIT=10
 
-nodes="$2"
-# Split the node details string
-extra_nodes=($(echo "$nodes" | tr ':' ' '))
-
 
 
 clean () {
@@ -38,15 +34,8 @@ clean () {
   fi
 
   # We need to do this so that initially the permissions are user's permissions
-  resetPeeringFile config/peering-spammer.json
-  resetPeeringFile config/peering-coo.json
-  if [ -n "${extra_nodes}" ]; then
-      for node in "${extra_nodes[@]}"; do
-        peering_path="config/peering-${node}.json"
-        echo "Resetting ${peering_path}"
-        resetPeeringFile "${peering_path}"
-      done
-  fi
+  #resetPeeringFile config/peering-spammer.json
+  #resetPeeringFile config/peering-coo.json
 }
 
 # Sets up the necessary directories if they do not exist yet
@@ -56,18 +45,6 @@ volumeSetup () {
   cp -r config-coo.json "/tmp/iota/config/config-coo.json"
   cp -r config-spammer.json "/tmp/iota/config/config-spammer.json"
   cd "/tmp/iota"
-
-  if ! [ -d ./config ]; then
-    mkdir ./config
-  else
-    cd ./config
-    for node in "${extra_nodes[@]}"; do
-      echo "Copying config-node.json to config-${node}.json"
-      cp config-node.json config-${node}.json
-      sed -i 's/node1/'$node'/g' config-${node}.json
-    done
-    cd ..
-  fi
 
   # Snapshots
   if ! [ -d ./snapshots ]; then
