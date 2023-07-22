@@ -1,6 +1,9 @@
 from fogbed import (
     Container, VirtualInstance, FogbedExperiment
 )
+from NodeConfig import NodeConfig
+from CoordConfig import CoordConfig
+from SpammerConfig import SpammerConfig
 from typing import List
 from typing import Dict
 import os
@@ -15,14 +18,19 @@ class IotaBasic:
         self,
         exp: FogbedExperiment,
         prefix: str = 'cloud',
-        nodes: List[Dict[str, str]] = []
+        conf_nodes: List[NodeConfig] = [],
+        conf_coord: CoordConfig = None,
+        conf_spammer: SpammerConfig = None
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
         self.exp = exp
         self.prefix = prefix
-        self.startScript(nodes)
-        self.createContainers(nodes)
+        self.conf_nodes = conf_nodes
+        self.conf_coord = conf_coord
+        self.conf_spammer = conf_spammer
+        self.startScript()
+        self.createContainers()
 
     def add_ledger(self, prefix: str, nodes: List[Container]):
         ledger = self.exp.add_virtual_instance(f'{prefix}')
@@ -43,15 +51,12 @@ class IotaBasic:
         with open(file_path, 'r') as file:
             return file.read()
 
-    def startScript(self, nodes: List[Dict[str, str]]):
+    def startScript(self):
         print("starting script...")
-        node_names = [node['name'] for node in nodes]
-        concatenated_string = ":".join(node_names)
         path_script = pkg_resources.resource_filename('fogledger', 'data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
-        subprocess.run(["/bin/bash", path_private_tangle, "install",
-                       concatenated_string], check=True, cwd=path_script)
+        subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
         print("finished script...")
 
     def createContainers(self, nodes: List[str]):

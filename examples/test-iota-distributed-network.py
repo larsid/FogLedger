@@ -23,6 +23,9 @@ if (__name__ == '__main__'):
             {'name': 'node3', 'port_bindings':{'8081':'8083'}},
             {'name': 'node4', 'port_bindings':{'8081':'8084'}},
         ]
+    config_cord = {'name': 'cord', 'port_bindings':{'8081':'8081'}}
+    config_spammer = {'name': 'spammer', 'port_bindings':{'8081':'8081'}}
+
     iota = IotaBasic(exp=exp, prefix='fog', nodes=config_nodes)
 
     add_datacenters_to_worker(worker1, iota.ledgers[:len(iota.ledgers)//2])
