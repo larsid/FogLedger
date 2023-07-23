@@ -2,7 +2,8 @@ __pycache__/
 .pytest_cache/
 tests/
 fogLedger.egg-info/
-
+dist/
+build/
 main.py
 stats.txt
 pox

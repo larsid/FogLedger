@@ -1,7 +1,10 @@
 from fogledger.iota.IotaBasic import (IotaBasic)
+from fogledger.iota.NodeConfig import (NodeConfig)
+from fogledger.iota.CoordConfig import (CoordConfig)
+from fogledger.iota.SpammerConfig import (SpammerConfig)
 from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
+    FogbedExperiment,
     CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
     setLogLevel,
 )
@@ -14,8 +17,16 @@ def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
 
 if (__name__ == '__main__'):
     exp = FogbedExperiment()
-    nodes = ['node1', 'node2', 'node3']
-    iota = IotaBasic(exp=exp, prefix='fog', nodes=nodes)
+ 
+    node1 = NodeConfig(name='node1', port_bindings={'8081':'8081'})
+    node2 = NodeConfig(name='node2', port_bindings={'8081':'8082'})
+    node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'})
+    node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'})
+
+    cord = CoordConfig(name='cord', port_bindings={'8081':'8085'}, interval='60s')
+    spammer = SpammerConfig(name='spammer', port_bindings={'8081':'8086'}, message ='one-click-tangle.')
+
+    iota = IotaBasic(exp=exp, prefix='fog', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer)
 
     fog = exp.add_virtual_instance('fog')
     create_links(fog, iota.ledgers)

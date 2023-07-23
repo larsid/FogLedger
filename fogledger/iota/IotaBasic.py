@@ -1,9 +1,9 @@
 from fogbed import (
     Container, VirtualInstance, FogbedExperiment
 )
-from NodeConfig import NodeConfig
-from CoordConfig import CoordConfig
-from SpammerConfig import SpammerConfig
+from .NodeConfig import NodeConfig
+from .CoordConfig import CoordConfig
+from .SpammerConfig import SpammerConfig
 from typing import List
 from typing import Dict
 import os
@@ -59,7 +59,7 @@ class IotaBasic:
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
         print("finished script...")
 
-    def createContainers(self, nodes: List[str]):
+    def createContainers(self):
         ### NODES ###
         for index, node_conf in enumerate(self.conf_nodes):
             name = node_conf.name
@@ -103,14 +103,21 @@ class IotaBasic:
     
     def configureNodes(self):
         print("\nConfiguring nodes...")
+        file_path = os.path.join("/tmp", "iota")
+        config_file_coor = json.loads(IotaBasic.read_file(f"{file_path}/config/config-coo.json"))
+        config_file_spammer = json.loads(IotaBasic.read_file(f"{file_path}/config/config-spammer.json"))
+        config_file_node = json.loads(IotaBasic.read_file(f"{file_path}/config/config-node.json"))
         for node in self.nodes.values():
-            json_data = node.cmd(f'cat /app/config.json').strip("> >")
-            json_data = json.loads(json_data)
-            json_data["node"]["alias"] = node.name
+            json_data = {}
             if(node.name == self.conf_coord.name):
+                json_data = config_file_coor
                 json_data["coordinator"]["interval"] = self.conf_coord.interval
-            if(node.name == self.conf_spammer.name):
+            elif(node.name == self.conf_spammer.name):
+                json_data = config_file_spammer
                 json_data["spammer"]["message"] = self.conf_spammer.message
+            else:
+                json_data = config_file_node
+            json_data["node"]["alias"] = node.name
             updated_data = json.dumps(json_data)
             node.cmd(f"echo \'{updated_data}\' | jq . > /app/config.json")
         print("Nodes configured! ✅")
@@ -153,8 +160,8 @@ class IotaBasic:
             file_path = os.path.join("/tmp", "iota")
             command = f'echo {coo_public_key} > {file_path}/coo-milestones-public-key.txt'
             os.system(command)
-            json_data = IotaBasic.read_file(f"{file_path}/config/config-node.json")
             for node in self.nodes.values():
+                json_data = node.cmd(f'cat /app/config.json').strip("> >")
                 json_data = json.loads(json_data)
                 json_data["protocol"]["publicKeyRanges"][0]["key"] = coo_public_key
                 updated_data = json.dumps(json_data)
