@@ -50,12 +50,13 @@ fi
 ###################
 
 clean () {
+
   if [ -d $EXPLORER_SRC ]; then
-    rm -Rf $EXPLORER_SRC
+    sudo rm -Rf $EXPLORER_SRC
   fi
 
   if [ -d $APP_DATA ]; then
-    rm -Rf $APP_DATA
+    sudo rm -Rf $APP_DATA
   fi
 }
 
@@ -65,40 +66,47 @@ buildConfig() {
   echo "Config api"
   
   echo $(cat $folder_config/../coo-milestones-public-key.txt)
-  cp ./private-network.json $folder_config/my-network.json
+  sudo cp ./private-network.json $folder_config/my-network.json
 
   # Set the Coordinator Address
-  sed -i 's/"coordinatorAddress": \("\).*\("\)/"coordinatorAddress": \1'$(cat $folder_config/../coo-milestones-public-key.txt)'\2/g' $folder_config/my-network.json
+  sudo sed -i 's/"coordinatorAddress": \("\).*\("\)/"coordinatorAddress": \1'$(cat $folder_config/../coo-milestones-public-key.txt)'\2/g' $folder_config/my-network.json
 
   # Set in the Front-End App configuration the API endpoint
-  sed -i 's/"apiEndpoint": \("\).*\("\)/"apiEndpoint": \1http:\/\/localhost:4000\2/g' ./webapp.config.local.json
+  sudo sed -i 's/"apiEndpoint": \("\).*\("\)/"apiEndpoint": \1http:\/\/localhost:4000\2/g' ./webapp.config.local.json
 }
 
 # Copies the configuration
 copyConfig () {
   if ! [ -d $APP_DATA ]; then
-    mkdir $APP_DATA
+    sudo mkdir $APP_DATA
   fi
 
   if ! [ -d $APP_DATA/network ]; then
-    mkdir $APP_DATA/network
+    sudo mkdir $APP_DATA/network
   fi
 
-  cp $network_file ./$APP_DATA/network/private-network.json
+  sudo cp -f $network_file $APP_DATA/network/private-network.json
 
   # Configuration of the API Server
-  cp ./api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
+  sudo cp -f ./api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
 
+  if ! [ -d $EXPLORER_SRC/client/src/assets/config ]; then
+    sudo mkdir -p "$EXPLORER_SRC/client/src/assets/config"
+  fi
+  
   # Configuration of the Web App
-  cp ./webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
+  sudo cp -f ./webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
 
   # TODO: Check why is it really needed
-  rm $EXPLORER_SRC/client/package-lock.json
+  if [ -f "$EXPLORER_SRC/client/package-lock.json" ]; then
+    sudo rm "$EXPLORER_SRC/client/package-lock.json"
+  fi
 }
 
 installExplorer () {
-  clean
-  git clone https://github.com/iotaledger/explorer $EXPLORER_SRC
+  #clean
+   
+  #sudo git clone https://github.com/iotaledger/explorer $EXPLORER_SRC
 
   # If the input parameter is a folder with config then we need to build it
   if [ "$is_config_folder" = true ]; then
@@ -129,7 +137,6 @@ case "${command}" in
     ;;
 	"install")
     installExplorer
-    startExplorer
     ;;
   "update")
 		updateExplorer
