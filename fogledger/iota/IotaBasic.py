@@ -4,6 +4,7 @@ from fogbed import (
 from .NodeConfig import NodeConfig
 from .CoordConfig import CoordConfig
 from .SpammerConfig import SpammerConfig
+from .ApiConfig import ApiConfig
 from typing import List
 from typing import Dict
 import os
@@ -20,7 +21,8 @@ class IotaBasic:
         prefix: str = 'cloud',
         conf_nodes: List[NodeConfig] = [],
         conf_coord: CoordConfig = None,
-        conf_spammer: SpammerConfig = None
+        conf_spammer: SpammerConfig = None,
+        conf_api: ApiConfig = None,
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
@@ -29,7 +31,9 @@ class IotaBasic:
         self.conf_nodes = conf_nodes
         self.conf_coord = conf_coord
         self.conf_spammer = conf_spammer
-        self.startScript()
+        self.conf_api = conf_api
+        self.installPrivateTangle()
+        self.installTangleExplorer()
         self.createContainers()
 
     def add_ledger(self, prefix: str, nodes: List[Container]):
@@ -51,12 +55,20 @@ class IotaBasic:
         with open(file_path, 'r') as file:
             return file.read()
 
-    def startScript(self):
-        print("starting script...")
+    def installPrivateTangle(self):
+        print("install tangle")
         path_script = pkg_resources.resource_filename('fogledger', 'data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
+        print("finished script...")
+
+    def installTangleExplorer(self):
+        print("install tangle explorer")
+        path_script = pkg_resources.resource_filename('fogledger', 'data')
+        path_explorer = os.path.join(path_script, "tangle-explorer.sh")
+        subprocess.run(["chmod", "+x", path_explorer])
+        subprocess.run(["/bin/bash", path_explorer, "install", "tmp/iota"], check=True, cwd=path_script)
         print("finished script...")
 
     def createContainers(self):
@@ -96,11 +108,29 @@ class IotaBasic:
         )
         self.add_ledger(f'ledger-{spammer.name}', [spammer])
 
+        ### API ###
+        api = Container(
+            name= self.conf_api.name,
+            ip = self.conf_api.ip,
+            port_bindings = self.conf_api.port_bindings,
+            dimage='iotaledger/explorer-api',
+            ports=['4000']
+        )
+        self.add_ledger(f'ledger-{api.name}', [api])
+
     def searchNode(self, node_name: str):
         for node in self.nodes.values():
             if node.name == node_name:
                 return node
     
+    def configureApi(self):
+        print("\nConfiguring api...")
+        file_path = os.path.join("/tmp", "iota", "application-data", "network", "private-network.json")
+        json_data = json.loads(IotaBasic.read_file(file_path))
+        api = self.searchNode(self.conf_api.name)
+        api.cmd(f"echo '{json_data}' | jq . > /app/data/.local-storage/application-data/network/private-network.json")
+        print("Api configured! ✅")
+
     def configureNodes(self):
         print("\nConfiguring nodes...")
         file_path = os.path.join("/tmp", "iota")
@@ -216,6 +246,7 @@ class IotaBasic:
 
     def start_network(self):
         print("\nStarting the network...")
+        self.configureApi()
         self.configureNodes()
         self.setupIdentities()
         self.extractPeerID()
