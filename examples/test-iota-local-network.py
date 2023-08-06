@@ -2,6 +2,7 @@ from fogledger.iota.IotaBasic import (IotaBasic)
 from fogledger.iota.NodeConfig import (NodeConfig)
 from fogledger.iota.CoordConfig import (CoordConfig)
 from fogledger.iota.SpammerConfig import (SpammerConfig)
+from fogledger.iota.ApiConfig import (ApiConfig)
 from typing import List
 from fogbed import (
     FogbedExperiment,
@@ -25,8 +26,9 @@ if (__name__ == '__main__'):
 
     cord = CoordConfig(name='cord', port_bindings={'8081':'8085'}, interval='60s')
     spammer = SpammerConfig(name='spammer', port_bindings={'8081':'8086'}, message ='one-click-tangle.')
+    api = ApiConfig(name='spammer', port_bindings={'8081':'8081'})
 
-    iota = IotaBasic(exp=exp, prefix='fog', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer)
+    iota = IotaBasic(exp=exp, prefix='fog', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer, conf_api=api)
 
     fog = exp.add_virtual_instance('fog')
     create_links(fog, iota.ledgers)

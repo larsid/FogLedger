@@ -35,17 +35,17 @@ if [ "$command" == "install" ]; then
 fi
 
 # Obtaining the source of the Explorer
-if ! [ -d $network_file ]; then
-  if ! [ -f $network_file ]; then
-    echo "The IOTA network definition file or private tangle installation folder does not exist"
-    exit 1
-  fi
-else 
-  is_config_folder=true
-  folder_config="$2/config"
-  # The copy process will leave the network configuration under this file
-  network_file="$folder_config/my-network.json"
-fi
+#if ! [ -d $network_file ]; then
+#  if ! [ -f $network_file ]; then
+#    echo "The IOTA network definition file or private tangle installation folder does not exist"
+#    exit 1
+#  fi
+#else
+is_config_folder=true
+folder_config="$2/config"
+# The copy process will leave the network configuration under this file
+network_file="$folder_config/my-network.json"
+#fi
 
 ###################
 
@@ -66,7 +66,7 @@ buildConfig() {
   echo "Config api"
   
   echo $(cat $folder_config/../coo-milestones-public-key.txt)
-  sudo cp ./private-network.json $folder_config/my-network.json
+  sudo cp private-network.json $folder_config/my-network.json
 
   # Set the Coordinator Address
   sudo sed -i 's/"coordinatorAddress": \("\).*\("\)/"coordinatorAddress": \1'$(cat $folder_config/../coo-milestones-public-key.txt)'\2/g' $folder_config/my-network.json
@@ -85,17 +85,21 @@ copyConfig () {
     sudo mkdir $APP_DATA/network
   fi
 
+  if ! [ -d $EXPLORER_SRC/api ]; then
+    sudo mkdir -p $EXPLORER_SRC/api/src/data
+  fi
+
   sudo cp -f $network_file $APP_DATA/network/private-network.json
 
   # Configuration of the API Server
-  sudo cp -f ./api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
+  sudo cp -f api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
 
   if ! [ -d $EXPLORER_SRC/client/src/assets/config ]; then
     sudo mkdir -p "$EXPLORER_SRC/client/src/assets/config"
   fi
   
   # Configuration of the Web App
-  sudo cp -f ./webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
+  sudo cp -f webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
 
   # TODO: Check why is it really needed
   if [ -f "$EXPLORER_SRC/client/package-lock.json" ]; then

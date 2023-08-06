@@ -26,29 +26,28 @@ class IotaBasic:
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
+        self.api:Container
         self.exp = exp
         self.prefix = prefix
         self.conf_nodes = conf_nodes
         self.conf_coord = conf_coord
         self.conf_spammer = conf_spammer
         self.conf_api = conf_api
+        self.coo_public_key:str
         self.installPrivateTangle()
-        self.installTangleExplorer()
         self.createContainers()
 
-    def add_ledger(self, prefix: str, nodes: List[Container]):
+    def add_ledger(self, prefix: str):
         ledger = self.exp.add_virtual_instance(f'{prefix}')
-        self._create_nodes(ledger, nodes)
         self.ledgers.append(ledger)
-        return self.ledgers
+        return ledger
 
-    def _create_nodes(self, ledger: VirtualInstance, nodes: List[Container]):
-        for node in nodes:
-            self.exp.add_docker(
-                container=node,
-                datacenter=ledger)
-            self.nodes[f'{self.prefix}_{ledger.label}_{node.name}'] = node
-        return nodes
+    def _create_node(self, ledger: VirtualInstance, node:Container):
+        self.exp.add_docker(
+            container=node,
+            datacenter=ledger)
+        self.nodes[f'{self.prefix}_{ledger.label}_{node.name}'] = node
+        return node
 
     @staticmethod
     def read_file(file_path):
@@ -57,7 +56,8 @@ class IotaBasic:
 
     def installPrivateTangle(self):
         print("install tangle")
-        path_script = pkg_resources.resource_filename('fogledger', 'data')
+        #path_script = pkg_resources.resource_filename('fogledger', 'data')
+        path_script = os.path.abspath('data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
@@ -65,10 +65,17 @@ class IotaBasic:
 
     def installTangleExplorer(self):
         print("install tangle explorer")
-        path_script = pkg_resources.resource_filename('fogledger', 'data')
+        #path_script = pkg_resources.resource_filename('fogledger', 'data')
+        path_script = os.path.abspath('data')
         path_explorer = os.path.join(path_script, "tangle-explorer.sh")
         subprocess.run(["chmod", "+x", path_explorer])
-        subprocess.run(["/bin/bash", path_explorer, "install", "tmp/iota"], check=True, cwd=path_script)
+        try:
+            result = subprocess.run(['/bin/bash', path_explorer, 'install', '/tmp/iota'], capture_output=True, text=True, check=True, cwd=path_script)
+            print("Subprocess output:", result.stdout)
+        except subprocess.CalledProcessError as e:
+            print("Error:", e)
+            print("Subprocess output:", e.stdout)
+            print("Subprocess error output:", e.stderr)
         print("finished script...")
 
     def createContainers(self):
@@ -85,7 +92,8 @@ class IotaBasic:
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
             )
-            self.add_ledger(f'ledger-{name}{index}', [node])
+            ledger = self.add_ledger(f'ledger-{name}{index}')
+            self._create_node(ledger,node)
 
         ### COO ###
         coo = Container(
@@ -96,7 +104,8 @@ class IotaBasic:
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
-        self.add_ledger(f'ledger-{coo.name}', [coo])
+        ledger = self.add_ledger(f'ledger-{coo.name}')
+        self._create_node(ledger,coo)
 
         ### spammer ###
         spammer = Container(
@@ -106,7 +115,8 @@ class IotaBasic:
             dimage='larsid/fogbed-iota-node:v3.0.0-beta',
             ports=['15600', '14626/udp']
         )
-        self.add_ledger(f'ledger-{spammer.name}', [spammer])
+        ledger = self.add_ledger(f'ledger-{spammer.name}')
+        self._create_node(ledger,spammer)
 
         ### API ###
         api = Container(
@@ -116,7 +126,11 @@ class IotaBasic:
             dimage='iotaledger/explorer-api',
             ports=['4000']
         )
-        self.add_ledger(f'ledger-{api.name}', [api])
+        ledger = self.add_ledger(f'ledger-{api.name}')
+        self.exp.add_docker(
+            container=api,
+            datacenter=ledger)
+        self.api = api
 
     def searchNode(self, node_name: str):
         for node in self.nodes.values():
@@ -125,10 +139,13 @@ class IotaBasic:
     
     def configureApi(self):
         print("\nConfiguring api...")
-        file_path = os.path.join("/tmp", "iota", "application-data", "network", "private-network.json")
-        json_data = json.loads(IotaBasic.read_file(file_path))
-        api = self.searchNode(self.conf_api.name)
-        api.cmd(f"echo '{json_data}' | jq . > /app/data/.local-storage/application-data/network/private-network.json")
+        file_path = os.path.join("/tmp", "iota")
+        config_file_network_api = json.loads(IotaBasic.read_file(f"{file_path}/config/private-network.json"))
+        config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
+        if(self.coo_public_key is not None):
+            config_file_network_api["coordinatorAddress"] = self.coo_public_key
+            self.api.cmd(f"echo \'{config_file_network_api}\' | jq . > /app/data/.local-storage/network/private-network.json")
+            self.api.cmd(f"echo \'{config_file_api}\' | jq . > /app/src/data/config.local.json")
         print("Api configured! ✅")
 
     def configureNodes(self):
@@ -185,15 +202,15 @@ class IotaBasic:
             COO_PRV_KEYS = coo.cmd(
                 f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /private key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
             coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
-            coo_public_key = coo.cmd(
+            self.coo_public_key = coo.cmd(
                 f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
             file_path = os.path.join("/tmp", "iota")
-            command = f'echo {coo_public_key} > {file_path}/coo-milestones-public-key.txt'
+            command = f'echo {self.coo_public_key} > {file_path}/coo-milestones-public-key.txt'
             os.system(command)
             for node in self.nodes.values():
                 json_data = node.cmd(f'cat /app/config.json').strip("> >")
                 json_data = json.loads(json_data)
-                json_data["protocol"]["publicKeyRanges"][0]["key"] = coo_public_key
+                json_data["protocol"]["publicKeyRanges"][0]["key"] = self.coo_public_key
                 updated_data = json.dumps(json_data)
                 node.cmd(f"echo \'{updated_data}\' | jq . > /app/config.json")
             print("Coordinator set up! ✅")
@@ -243,15 +260,18 @@ class IotaBasic:
             print(f"\nStarting {node.name}... ⏳")
             time.sleep(3)
             print(f"{node.name} is up and running! ✅")
+        self.api.cmd(f'npm run start-dev >> {self.api.name}.log &')
+        print(f"{self.api.name} is up and running! ✅")
 
     def start_network(self):
         print("\nStarting the network...")
-        self.configureApi()
         self.configureNodes()
         self.setupIdentities()
         self.extractPeerID()
         self.copySnapshotToNodes()
         self.setupCoordinator()
         self.bootstrapCoordinator()
+        self.installTangleExplorer()
+        self.configureApi()
         self.startContainers()
         print("Network is up and running! ✅")

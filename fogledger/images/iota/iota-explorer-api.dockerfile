@@ -1,15 +1,38 @@
-FROM node:16-alpine3.14 AS build
+FROM ubuntu:20.04
 
-## Include the build tools for any npm packages that rebuild
-RUN apk --no-cache add git curl python3 build-base cmake
+USER root
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
+    apt-get install -y \
+    bash \
+    net-tools \
+    iputils-ping \
+    iproute2 \
+    pwgen \
+    jq \
+    git \
+    curl \
+    python3 \
+    build-essential \
+    cmake && \
+    rm -rf /var/lib/apt/lists/*
+
+# Baixe e instale o Node.js v16.16.0
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
+
+# Atualize o npm para a versão 8.8.0
+RUN npm install -g npm@8.8.0
 
 # Working DIR
-WORKDIR /usr/src/app
+WORKDIR /app
 
 RUN git clone --depth 1 --branch dev https://github.com/iotaledger/explorer.git explorer
-RUN mv explorer/api/* /usr/src/app/
-
-
+RUN mv explorer/api/* /app/
 
 # Set the env variables
 ARG CONFIG_ID
@@ -22,9 +45,6 @@ RUN npm prune --production
 
 # Expose the external port for binding to
 EXPOSE 4000
-
-# Increase security by running as node user instead of root
-USER node
 
 # Serve the prod build from the dist folder
 CMD ["node", "dist/index"]
