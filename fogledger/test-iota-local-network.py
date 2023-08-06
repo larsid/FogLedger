@@ -19,7 +19,7 @@ def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
 if (__name__ == '__main__'):
     exp = FogbedExperiment()
  
-    node1 = NodeConfig(name='node1', port_bindings={'8081':'8081'})
+    node1 = NodeConfig(name='node1', port_bindings={'8081':'8081', '14265':'14265'})
     node2 = NodeConfig(name='node2', port_bindings={'8081':'8082'})
     node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'})
     node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'})

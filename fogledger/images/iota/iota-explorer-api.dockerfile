@@ -33,18 +33,9 @@ WORKDIR /app
 
 RUN git clone --depth 1 --branch dev https://github.com/iotaledger/explorer.git explorer
 RUN mv explorer/api/* /app/
+RUN mv -i explorer/api/.eslintrc.js /app/
+RUN mv -i explorer/api/.eslintignore /app/
+RUN mv -i explorer/api/.dockerignore /app/
 
 # Set the env variables
 ARG CONFIG_ID
-
-# Install all packages necessary for compilation, build, then remove the devDependencies
-RUN npm install
-RUN npm run build-compile
-RUN npm run build-config
-RUN npm prune --production
-
-# Expose the external port for binding to
-EXPOSE 4000
-
-# Serve the prod build from the dist folder
-CMD ["node", "dist/index"]

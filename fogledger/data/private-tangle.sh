@@ -44,6 +44,8 @@ volumeSetup () {
   cp -r config-node.json "/tmp/iota/config/config-node.json"
   cp -r config-coo.json "/tmp/iota/config/config-coo.json"
   cp -r config-spammer.json "/tmp/iota/config/config-spammer.json"
+  cp -r private-network.json "/tmp/iota/config/my-network.json"
+  cp -r api.config.local.json "/tmp/iota/config/api.config.local.json"
   cd "/tmp/iota"
 
   # Snapshots

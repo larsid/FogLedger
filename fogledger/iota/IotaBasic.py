@@ -140,12 +140,18 @@ class IotaBasic:
     def configureApi(self):
         print("\nConfiguring api...")
         file_path = os.path.join("/tmp", "iota")
-        config_file_network_api = json.loads(IotaBasic.read_file(f"{file_path}/config/private-network.json"))
+        config_file_network_api = json.loads(IotaBasic.read_file(f"{file_path}/config/my-network.json"))
         config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
+        node_name = self.conf_nodes[0].name
+        node = self.searchNode(node_name)
         if(self.coo_public_key is not None):
             config_file_network_api["coordinatorAddress"] = self.coo_public_key
-            self.api.cmd(f"echo \'{config_file_network_api}\' | jq . > /app/data/.local-storage/network/private-network.json")
-            self.api.cmd(f"echo \'{config_file_api}\' | jq . > /app/src/data/config.local.json")
+            config_file_network_api["provider"] = f"http://{node.ip}:14265"
+            config_file_network_api["feedEndpoint"] = f"mqtt://{node.ip}:1883"
+            updated_data_config_file = json.dumps(config_file_network_api)
+            self.api.cmd(f"mkdir -p /app/data/.local-storage/network")
+            self.api.cmd(f"echo \'{updated_data_config_file}\' | jq . > /app/data/.local-storage/network/private-network.json")
+            self.api.cmd(f"echo \'{json.dumps(config_file_api)}\' | jq . > /app/src/data/config.local.json")
         print("Api configured! ✅")
 
     def configureNodes(self):
@@ -259,8 +265,9 @@ class IotaBasic:
             node.cmd(f'./hornet > {node.name}.log &')
             print(f"\nStarting {node.name}... ⏳")
             time.sleep(3)
-            print(f"{node.name} is up and running! ✅")
-        self.api.cmd(f'npm run start-dev >> {self.api.name}.log &')
+            print(f"{self.api.name} is up and running! ✅")
+        print(f"\nStarting {node.name}... ⏳")
+        self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index')
         print(f"{self.api.name} is up and running! ✅")
 
     def start_network(self):
@@ -271,7 +278,6 @@ class IotaBasic:
         self.copySnapshotToNodes()
         self.setupCoordinator()
         self.bootstrapCoordinator()
-        self.installTangleExplorer()
         self.configureApi()
         self.startContainers()
         print("Network is up and running! ✅")
