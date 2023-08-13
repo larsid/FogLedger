@@ -5,6 +5,7 @@ from .NodeConfig import NodeConfig
 from .CoordConfig import CoordConfig
 from .SpammerConfig import SpammerConfig
 from .ApiConfig import ApiConfig
+from .WebAppConfig import WebAppConfig
 from typing import List
 from typing import Dict
 import os
@@ -23,6 +24,7 @@ class IotaBasic:
         conf_coord: CoordConfig = None,
         conf_spammer: SpammerConfig = None,
         conf_api: ApiConfig = None,
+        conf_web_app: WebAppConfig = None
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
@@ -33,6 +35,8 @@ class IotaBasic:
         self.conf_coord = conf_coord
         self.conf_spammer = conf_spammer
         self.conf_api = conf_api
+        self.conf_web_app = conf_web_app
+        self.web_app:Container
         self.coo_public_key:str
         self.installPrivateTangle()
         self.createContainers()
@@ -132,6 +136,20 @@ class IotaBasic:
             datacenter=ledger)
         self.api = api
 
+        ### WebApp ###
+        web_app = Container(
+            name= self.conf_web_app.name,
+            ip = self.conf_web_app.ip,
+            port_bindings = self.conf_web_app.port_bindings,
+            dimage='iotaledger/explorer-webapp',
+            ports=['4200']
+        )
+        ledger = self.add_ledger(f'ledger-{web_app.name}')
+        self.exp.add_docker(
+            container=web_app,
+            datacenter=ledger)
+        self.web_app = web_app
+
     def searchNode(self, node_name: str):
         for node in self.nodes.values():
             if node.name == node_name:
@@ -153,6 +171,22 @@ class IotaBasic:
             self.api.cmd(f"echo \'{updated_data_config_file}\' | jq . > /app/data/.local-storage/network/private-network.json")
             self.api.cmd(f"echo \'{json.dumps(config_file_api)}\' | jq . > /app/src/data/config.local.json")
         print("Api configured! ✅")
+
+    def configureWebApp(self):
+        print("\nConfiguring web app...")
+        file_path = os.path.join("/tmp", "iota")
+        config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
+        config_file_web_app = json.loads(IotaBasic.read_file(f"{file_path}/config/webapp.config.local.json"))
+        self.web_app.cmd("mkdir -p /app/api/src/data")
+        self.web_app.cmd("mkdir -p /app/client/src/assets/config")
+        self.web_app.cmd(f"echo \'{json.dumps(config_file_api)}\' | jq . > /app/api/src/data/config.local.json")
+        self.web_app.cmd(f"echo \'{json.dumps(config_file_web_app)}\' | jq . > /app/client/src/assets/config/config.local.json")
+        self.web_app.cmd(f"mv /app/public/env.js.template /app/public/env.js")
+        self.web_app.cmd(f"echo 'window.env = {{API_ENDPOINT: \"http://{self.api.ip}:4000/\"}};' > ./public/env.js")
+        self.web_app.cmd(f"rm app/client/package-lock.json")
+        print("WebApp configured! ✅")
+
+
 
     def configureNodes(self):
         print("\nConfiguring nodes...")
@@ -265,10 +299,13 @@ class IotaBasic:
             node.cmd(f'./hornet > {node.name}.log &')
             print(f"\nStarting {node.name}... ⏳")
             time.sleep(3)
-            print(f"{self.api.name} is up and running! ✅")
-        print(f"\nStarting {node.name}... ⏳")
-        self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index')
+            print(f"{node.name} is up and running! ✅")
+        print(f"\nStarting {self.api.name}... ⏳")
+        self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index &')
         print(f"{self.api.name} is up and running! ✅")
+        print(f"\nStarting {self.web_app.name}... ⏳")
+        self.api.cmd(f'npm install && npm run build &')
+        print(f"{self.web_app.name} is up and running! ✅")
 
     def start_network(self):
         print("\nStarting the network...")
@@ -279,5 +316,6 @@ class IotaBasic:
         self.setupCoordinator()
         self.bootstrapCoordinator()
         self.configureApi()
+        self.configureWebApp()
         self.startContainers()
         print("Network is up and running! ✅")

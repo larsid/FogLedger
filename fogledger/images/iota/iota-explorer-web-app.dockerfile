@@ -16,8 +16,7 @@ RUN apt-get update && \
     jq \
     git \
     curl \
-    python3 \
-    build-essential \
+    nginx \
     cmake && \
     rm -rf /var/lib/apt/lists/*
 
@@ -32,14 +31,20 @@ RUN npm install -g npm@8.8.0
 WORKDIR /app
 
 RUN git clone --depth 1 --branch dev https://github.com/iotaledger/explorer.git explorer
+RUN mv -i explorer/client/.eslintrc.js /app/
+RUN mv -i explorer/client/.eslintignore /app/
+RUN mv -i explorer/client/.dockerignore /app/
+RUN mv -i explorer/client/.env /app/
+RUN mv -i explorer/client/.stylelintrc.json /app/
 RUN mv -i explorer/client/* /app/
+
 
 RUN echo 'server {\
     listen       80;\
     server_name  localhost;\
     location / {\
-        root   /usr/src/app/build;\
+        root   /app/build;\
         index  index.html index.htm;\
         try_files $uri /index.html;\
     }\
-  }' > /etc/nginx/http.d/default.conf
+  }' > /etc/nginx/sites-available/default
