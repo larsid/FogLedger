@@ -23,3 +23,19 @@ jobs:
           file: ./fogledger/images/iota/iota.dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-iota-node:${{  github.ref_name }}
+      
+      - name: Build and push IotaApi
+        uses: docker/build-push-action@v4
+        with:
+          context: ./fogledger/images/iota
+          file: ./fogledger/images/iota/iota-explorer-api.dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-iota-api:${{  github.ref_name }}
+      
+      - name: Build and push IotaWebApp
+        uses: docker/build-push-action@v4
+        with:
+          context: ./fogledger/images/iota
+          file: ./fogledger/images/iota/iota-explorer-web-app.dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USER }}/fogbed-iota-web-app:${{  github.ref_name }}
