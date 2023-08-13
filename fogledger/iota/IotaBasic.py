@@ -76,7 +76,7 @@ class IotaBasic:
             
             node = Container(
                 name=name,
-                dimage='larsid/fogbed-iota-node:v3.0.3-beta',
+                dimage='larsid/fogbed-iota-node:v3.0.4-beta',
                 ip=ip,
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
@@ -89,7 +89,7 @@ class IotaBasic:
             name=self.conf_coord.name,
             ip = self.conf_coord.ip,
             port_bindings = self.conf_coord.port_bindings,
-            dimage='larsid/fogbed-iota-node:v3.0.3-beta',
+            dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
@@ -101,7 +101,7 @@ class IotaBasic:
             name= self.conf_spammer.name,
             ip = self.conf_spammer.ip,
             port_bindings = self.conf_spammer.port_bindings,
-            dimage='larsid/fogbed-iota-node:v3.0.3-beta',
+            dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             ports=['15600', '14626/udp']
         )
         ledger = self.add_ledger(f'ledger-{spammer.name}')
@@ -112,7 +112,7 @@ class IotaBasic:
             name= self.conf_api.name,
             ip = self.conf_api.ip,
             port_bindings = self.conf_api.port_bindings,
-            dimage='larsid/fogbed-iota-api:v3.0.3-beta',
+            dimage='larsid/fogbed-iota-api:v3.0.4-beta',
             ports=['4000']
         )
         ledger = self.add_ledger(f'ledger-{api.name}')
@@ -126,7 +126,7 @@ class IotaBasic:
             name= self.conf_web_app.name,
             ip = self.conf_web_app.ip,
             port_bindings = self.conf_web_app.port_bindings,
-            dimage='larsid/fogbed-iota-web-app:v3.0.3-beta',
+            dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
             ports=['4200']
         )
         ledger = self.add_ledger(f'ledger-{web_app.name}')
