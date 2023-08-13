@@ -60,26 +60,11 @@ class IotaBasic:
 
     def installPrivateTangle(self):
         print("install tangle")
-        #path_script = pkg_resources.resource_filename('fogledger', 'data')
-        path_script = os.path.abspath('data')
+        path_script = pkg_resources.resource_filename('fogledger', 'data')
+        #path_script = os.path.abspath('data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["chmod", "+x", path_private_tangle])
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
-        print("finished script...")
-
-    def installTangleExplorer(self):
-        print("install tangle explorer")
-        #path_script = pkg_resources.resource_filename('fogledger', 'data')
-        path_script = os.path.abspath('data')
-        path_explorer = os.path.join(path_script, "tangle-explorer.sh")
-        subprocess.run(["chmod", "+x", path_explorer])
-        try:
-            result = subprocess.run(['/bin/bash', path_explorer, 'install', '/tmp/iota'], capture_output=True, text=True, check=True, cwd=path_script)
-            print("Subprocess output:", result.stdout)
-        except subprocess.CalledProcessError as e:
-            print("Error:", e)
-            print("Subprocess output:", e.stdout)
-            print("Subprocess error output:", e.stderr)
         print("finished script...")
 
     def createContainers(self):
@@ -185,8 +170,6 @@ class IotaBasic:
         self.web_app.cmd(f"echo 'window.env = {{API_ENDPOINT: \"http://{self.api.ip}:4000/\"}};' > ./public/env.js")
         self.web_app.cmd(f"rm app/client/package-lock.json")
         print("WebApp configured! ✅")
-
-
 
     def configureNodes(self):
         print("\nConfiguring nodes...")
@@ -304,7 +287,7 @@ class IotaBasic:
         self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index &')
         print(f"{self.api.name} is up and running! ✅")
         print(f"\nStarting {self.web_app.name}... ⏳")
-        self.api.cmd(f'npm install && npm run build &')
+        self.web_app.cmd(f'npm run build && nginx -g "daemon off;" &')
         print(f"{self.web_app.name} is up and running! ✅")
 
     def start_network(self):

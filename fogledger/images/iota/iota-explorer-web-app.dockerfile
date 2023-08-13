@@ -48,3 +48,5 @@ RUN echo 'server {\
         try_files $uri /index.html;\
     }\
   }' > /etc/nginx/sites-available/default
+
+RUN npm install
