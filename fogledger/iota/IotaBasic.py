@@ -41,16 +41,12 @@ class IotaBasic:
         self.installPrivateTangle()
         self.createContainers()
 
-    def add_ledger(self, prefix: str):
-        ledger = self.exp.add_virtual_instance(f'{prefix}')
-        self.ledgers.append(ledger)
-        return ledger
-
     def _create_node(self, ledger: VirtualInstance, node:Container):
         self.exp.add_docker(
             container=node,
             datacenter=ledger)
         self.nodes[f'{self.prefix}_{ledger.label}_{node.name}'] = node
+        self.ledgers.append(ledger)
         return node
 
     @staticmethod
@@ -81,8 +77,7 @@ class IotaBasic:
                 port_bindings=port_bindings,
                 ports=['14265', '8081', '1883', '15600', '14626/udp']
             )
-            ledger = self.add_ledger(f'ledger-{name}{index}')
-            self._create_node(ledger,node)
+            self._create_node(node_conf.ledger,node)
 
         ### COO ###
         coo = Container(
@@ -93,8 +88,7 @@ class IotaBasic:
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
-        ledger = self.add_ledger(f'ledger-{coo.name}')
-        self._create_node(ledger,coo)
+        self._create_node(self.conf_coord.ledger,coo)
 
         ### spammer ###
         spammer = Container(
@@ -104,8 +98,7 @@ class IotaBasic:
             dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             ports=['15600', '14626/udp']
         )
-        ledger = self.add_ledger(f'ledger-{spammer.name}')
-        self._create_node(ledger,spammer)
+        self._create_node(self.conf_spammer.ledger,spammer)
 
         ### API ###
         api = Container(
@@ -115,10 +108,11 @@ class IotaBasic:
             dimage='larsid/fogbed-iota-api:v3.0.4-beta',
             ports=['4000']
         )
-        ledger = self.add_ledger(f'ledger-{api.name}')
         self.exp.add_docker(
             container=api,
-            datacenter=ledger)
+            datacenter=self.conf_api.ledger)
+        self.ledgers.append(self.conf_api.ledger)
+
         self.api = api
 
         ### WebApp ###
@@ -129,10 +123,11 @@ class IotaBasic:
             dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
             ports=['4200']
         )
-        ledger = self.add_ledger(f'ledger-{web_app.name}')
         self.exp.add_docker(
             container=web_app,
-            datacenter=ledger)
+            datacenter=self.conf_web_app.ledger)
+        self.ledgers.append(self.conf_web_app.ledger)
+
         self.web_app = web_app
 
     def searchNode(self, node_name: str):
