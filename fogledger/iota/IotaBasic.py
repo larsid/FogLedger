@@ -1,5 +1,5 @@
 from fogbed import (
-    Container, VirtualInstance, FogbedExperiment
+    Container, VirtualInstance, FogbedExperiment, FogbedDistributedExperiment
 )
 from .NodeConfig import NodeConfig
 from .CoordConfig import CoordConfig
@@ -13,12 +13,13 @@ import json
 import time
 import subprocess
 import pkg_resources
+from typing import Union
 
 
 class IotaBasic:
     def __init__(
         self,
-        exp: FogbedExperiment,
+        exp: Union[FogbedExperiment, FogbedDistributedExperiment],
         prefix: str = 'cloud',
         conf_nodes: List[NodeConfig] = [],
         conf_coord: CoordConfig = None,
