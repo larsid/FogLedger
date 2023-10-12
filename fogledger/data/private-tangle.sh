@@ -73,7 +73,7 @@ generateSnapshot () {
   echo "Generating an initial snapshot..."
 
   # First a key pair is generated
-  docker run -t -i --rm iotaledger/hornet tool ed25519-key > key-pair.txt
+  docker run -t -i --rm iotaledger/hornet:1.2.4 tool ed25519-key > key-pair.txt
   
   # Extract the public key use to generate the address
   local public_key="$(getPublicKey key-pair.txt)"
@@ -84,7 +84,7 @@ generateSnapshot () {
 
   # Generate the snapshot
   cd snapshots/private-tangle
-  docker run --rm -v "$PWD:/output_dir" -w /output_dir iotaledger/hornet tool snap-gen \
+  docker run --rm -v "$PWD:/output_dir" -w /output_dir iotaledger/hornet:1.2.4 tool snap-gen \
    --networkID "private-tangle" --mintAddress "$(cat ../../address.txt)" \
    --treasuryAllocation 1000000000 --outputPath /output_dir/full_snapshot.bin
 
@@ -94,7 +94,7 @@ generateSnapshot () {
 }
 
 updateContainers () {
-  docker pull iotaledger/hornet
+  docker pull iotaledger/hornet:1.2.4
 }
 
 

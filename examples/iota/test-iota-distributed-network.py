@@ -16,9 +16,9 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
         worker.add(device, reachable=True)
 
 if (__name__ == '__main__'):
-    exp = FogbedDistributedExperiment()
-    worker1 = exp.add_worker(ip = '34.125.41.127',  controller=Controller('34.125.41.127', 6633))
-    worker2 = exp.add_worker(ip = '34.16.156.231',  controller=Controller('34.125.41.127', 6633))
+    exp = FogbedDistributedExperiment(controller_ip='35.245.6.178', controller_port=6633)
+    worker1 = exp.add_worker(ip = '34.139.133.100',  controller=Controller('35.245.6.178', 6633))
+    worker2 = exp.add_worker(ip = '35.245.6.178',  controller=Controller('35.245.6.178', 6633))
     
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
@@ -36,10 +36,10 @@ if (__name__ == '__main__'):
     edge6 = exp.add_virtual_instance('edge6')
     spammer = SpammerConfig(name='spammer', port_bindings={'8081':'8086'}, ledger=edge6, message ='one-click-tangle.')
     
-    cloud = exp.add_virtual_instance('cloud1')
-
-    api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud)    
-    web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud)
+    cloud1 = exp.add_virtual_instance('cloud1')
+    cloud2 = exp.add_virtual_instance('cloud2')
+    api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud1)    
+    web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud2)
     
     iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer, conf_api=api, conf_web_app=web_app)
 
