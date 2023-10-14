@@ -101,35 +101,36 @@ class IotaBasic:
         )
         self._create_node(self.conf_spammer.ledger,spammer)
 
-        ### API ###
-        api = Container(
-            name= self.conf_api.name,
-            ip = self.conf_api.ip,
-            port_bindings = self.conf_api.port_bindings,
-            dimage='larsid/fogbed-iota-api:v3.0.4-beta',
-            ports=['4000']
-        )
-        self.exp.add_docker(
-            container=api,
-            datacenter=self.conf_api.ledger)
-        self.ledgers.append(self.conf_api.ledger)
+        if(self.conf_api is not None and self.conf_web_app is not None):
+            ### API ###
+            api = Container(
+                name= self.conf_api.name,
+                ip = self.conf_api.ip,
+                port_bindings = self.conf_api.port_bindings,
+                dimage='larsid/fogbed-iota-api:v3.0.4-beta',
+                ports=['4000']
+            )
+            self.exp.add_docker(
+                container=api,
+                datacenter=self.conf_api.ledger)
+            self.ledgers.append(self.conf_api.ledger)
 
-        self.api = api
+            self.api = api
 
-        ### WebApp ###
-        web_app = Container(
-            name= self.conf_web_app.name,
-            ip = self.conf_web_app.ip,
-            port_bindings = self.conf_web_app.port_bindings,
-            dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
-            ports=['4200']
-        )
-        self.exp.add_docker(
-            container=web_app,
-            datacenter=self.conf_web_app.ledger)
-        self.ledgers.append(self.conf_web_app.ledger)
+            ### WebApp ###
+            web_app = Container(
+                name= self.conf_web_app.name,
+                ip = self.conf_web_app.ip,
+                port_bindings = self.conf_web_app.port_bindings,
+                dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
+                ports=['4200']
+            )
+            self.exp.add_docker(
+                container=web_app,
+                datacenter=self.conf_web_app.ledger)
+            self.ledgers.append(self.conf_web_app.ledger)
 
-        self.web_app = web_app
+            self.web_app = web_app
 
     def searchNode(self, node_name: str):
         for node in self.nodes.values():
@@ -279,12 +280,13 @@ class IotaBasic:
             print(f"\nStarting {node.name}... ⏳")
             time.sleep(3)
             print(f"{node.name} is up and running! ✅")
-        print(f"\nStarting {self.api.name}... ⏳")
-        self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index &')
-        print(f"{self.api.name} is up and running! ✅")
-        print(f"\nStarting {self.web_app.name}... ⏳")
-        self.web_app.cmd(f'npm run build && nginx -g "daemon off;" &')
-        print(f"{self.web_app.name} is up and running! ✅")
+        if(self.conf_api is not None and self.conf_web_app is not None):
+            print(f"\nStarting {self.api.name}... ⏳")
+            self.api.cmd(f'npm install && npm run build-compile && npm run build-config && npm prune --production && node dist/index &')
+            print(f"{self.api.name} is up and running! ✅")
+            print(f"\nStarting {self.web_app.name}... ⏳")
+            self.web_app.cmd(f'npm run build && nginx -g "daemon off;" &')
+            print(f"{self.web_app.name} is up and running! ✅")
 
     def start_network(self):
         print("\nStarting the network...")
@@ -294,7 +296,10 @@ class IotaBasic:
         self.copySnapshotToNodes()
         self.setupCoordinator()
         self.bootstrapCoordinator()
-        self.configureApi()
-        self.configureWebApp()
+        
+        if(self.conf_api is not None and self.conf_web_app is not None):
+            self.configureApi()
+            self.configureWebApp()
+        
         self.startContainers()
         print("Network is up and running! ✅")
