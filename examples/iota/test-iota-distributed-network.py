@@ -16,9 +16,9 @@ def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]
         worker.add(device, reachable=True)
 
 if (__name__ == '__main__'):
-    exp = FogbedDistributedExperiment(controller_ip='35.245.6.178', controller_port=6633)
-    worker1 = exp.add_worker(ip = '34.139.133.100',  controller=Controller('35.245.6.178', 6633))
-    worker2 = exp.add_worker(ip = '35.245.6.178',  controller=Controller('35.245.6.178', 6633))
+    exp = FogbedDistributedExperiment(controller_ip='35.245.131.33', controller_port=6633)
+    worker1 = exp.add_worker(ip = '35.231.54.58',  controller=Controller('35.245.131.33', 6633))
+    worker2 = exp.add_worker(ip = '34.145.164.105',  controller=Controller('35.245.131.33', 6633))
     
     edge1 = exp.add_virtual_instance('edge1')
     edge2 = exp.add_virtual_instance('edge2')
@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
     api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud1)    
     web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud2)
     
-    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer, conf_api=api, conf_web_app=web_app)
+    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer)
 
     add_datacenters_to_worker(worker1, iota.ledgers[:len(iota.ledgers)//2])
     add_datacenters_to_worker(worker2, iota.ledgers[len(iota.ledgers)//2:])

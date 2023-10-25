@@ -27,8 +27,8 @@ if (__name__ == '__main__'):
 
     node1 = NodeConfig(name='node1', port_bindings={'8081':'8081', '14265':'14265'}, ledger=edge1)
     node2 = NodeConfig(name='node2', port_bindings={'8081':'8082'}, ledger=edge2)
-    node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'}, ledger=edge3)
-    node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'}, ledger=edge4)
+    #node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'}, ledger=edge3)
+    #node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'}, ledger=edge4)
     
     edge5 = exp.add_virtual_instance('edge5')
     cord = CoordConfig(name='cord', port_bindings={'8081':'8085'}, ledger=edge5, interval='60s')
@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
     api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud)    
     web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud)
     
-    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer, conf_api=api, conf_web_app=web_app)
+    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2], conf_coord=cord, conf_spammer=spammer)
 
     fog = exp.add_virtual_instance('fog')
     create_links(fog, iota.ledgers)
