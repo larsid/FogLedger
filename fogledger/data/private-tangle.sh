@@ -7,7 +7,6 @@
 
 set -e
 
-chmod +x ./utils.sh
 source ./utils.sh
 
 help () {
@@ -23,14 +22,13 @@ fi
 
 command="$1"
 
-ip_address=$(echo $(dig +short myip.opendns.com @resolver1.opendns.com))
 COO_BOOTSTRAP_WAIT=10
 
 
 
 clean () {
   if [ -d ./snapshots/private-tangle ]; then
-    sudo rm -Rf ./snapshots/private-tangle/*
+    rm -Rf ./snapshots/private-tangle/*
   fi
 
   # We need to do this so that initially the permissions are user's permissions
@@ -57,13 +55,9 @@ volumeSetup () {
   if ! [ -d ./snapshots/private-tangle ]; then
     mkdir ./snapshots/private-tangle
   fi
+  
+  chmod -R 777 "/tmp/iota"
 
-  ## Change permissions so that the Tangle data can be written (hornet user)
-  ## TODO: Check why on MacOS this cause permission problems
-  if ! [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Setting permissions for Hornet..."
-    sudo chown -R 65532:65532 snapshots 
-  fi 
 }
 
 ### 

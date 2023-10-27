@@ -51,7 +51,7 @@ removeSubfolderContent () {
 
   for folder in $folders; do
     if [ -d "./$folder" ]; then
-      sudo rm -Rf ./"$folder"/*
+      rm -Rf ./"$folder"/*
     fi
   done
 }
@@ -64,7 +64,7 @@ setEntryNode () {
 # Resets a peering file
 resetPeeringFile() {
   if [ -f "$1" ]; then
-    sudo rm "$1"
+    rm "$1"
   fi
   
   cat <<EOF > "$1"

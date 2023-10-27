@@ -58,9 +58,7 @@ class IotaBasic:
     def installPrivateTangle(self):
         print("install tangle")
         path_script = pkg_resources.resource_filename('fogledger', 'data')
-        #path_script = os.path.abspath('data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
-        subprocess.run(["chmod", "+x", path_private_tangle])
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
         print("finished script...")
 

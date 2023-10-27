@@ -52,11 +52,11 @@ network_file="$folder_config/my-network.json"
 clean () {
 
   if [ -d $EXPLORER_SRC ]; then
-    sudo rm -Rf $EXPLORER_SRC
+    rm -Rf $EXPLORER_SRC
   fi
 
   if [ -d $APP_DATA ]; then
-    sudo rm -Rf $APP_DATA
+    rm -Rf $APP_DATA
   fi
 }
 
@@ -66,44 +66,44 @@ buildConfig() {
   echo "Config api"
   
   echo $(cat $folder_config/../coo-milestones-public-key.txt)
-  sudo cp private-network.json $folder_config/my-network.json
+  cp private-network.json $folder_config/my-network.json
 
   # Set the Coordinator Address
-  sudo sed -i 's/"coordinatorAddress": \("\).*\("\)/"coordinatorAddress": \1'$(cat $folder_config/../coo-milestones-public-key.txt)'\2/g' $folder_config/my-network.json
+  sed -i 's/"coordinatorAddress": \("\).*\("\)/"coordinatorAddress": \1'$(cat $folder_config/../coo-milestones-public-key.txt)'\2/g' $folder_config/my-network.json
 
   # Set in the Front-End App configuration the API endpoint
-  sudo sed -i 's/"apiEndpoint": \("\).*\("\)/"apiEndpoint": \1http:\/\/localhost:4000\2/g' ./webapp.config.local.json
+  sed -i 's/"apiEndpoint": \("\).*\("\)/"apiEndpoint": \1http:\/\/localhost:4000\2/g' ./webapp.config.local.json
 }
 
 # Copies the configuration
 copyConfig () {
   if ! [ -d $APP_DATA ]; then
-    sudo mkdir $APP_DATA
+    mkdir $APP_DATA
   fi
 
   if ! [ -d $APP_DATA/network ]; then
-    sudo mkdir $APP_DATA/network
+    mkdir $APP_DATA/network
   fi
 
   if ! [ -d $EXPLORER_SRC/api ]; then
-    sudo mkdir -p $EXPLORER_SRC/api/src/data
+    mkdir -p $EXPLORER_SRC/api/src/data
   fi
 
-  sudo cp -f $network_file $APP_DATA/network/private-network.json
+  cp -f $network_file $APP_DATA/network/private-network.json
 
   # Configuration of the API Server
-  sudo cp -f api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
+  cp -f api.config.local.json $EXPLORER_SRC/api/src/data/config.local.json
 
   if ! [ -d $EXPLORER_SRC/client/src/assets/config ]; then
-    sudo mkdir -p "$EXPLORER_SRC/client/src/assets/config"
+    mkdir -p "$EXPLORER_SRC/client/src/assets/config"
   fi
   
   # Configuration of the Web App
-  sudo cp -f webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
+  cp -f webapp.config.local.json $EXPLORER_SRC/client/src/assets/config/config.local.json
 
   # TODO: Check why is it really needed
   if [ -f "$EXPLORER_SRC/client/package-lock.json" ]; then
-    sudo rm "$EXPLORER_SRC/client/package-lock.json"
+    rm "$EXPLORER_SRC/client/package-lock.json"
   fi
 }
 
