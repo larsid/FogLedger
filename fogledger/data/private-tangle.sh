@@ -82,6 +82,8 @@ generateSnapshot () {
    --networkID "private-tangle" --mintAddress "$(cat ../../address.txt)" \
    --treasuryAllocation 1000000000 --outputPath /output_dir/full_snapshot.bin
 
+   chmod 777 ./full_snapshot.bin 
+
   echo "Initial Ed25519 Address generated. You can find the keys at key-pair.txt and the address at address.txt"
 
   cd .. && cd ..
