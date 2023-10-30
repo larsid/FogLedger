@@ -78,7 +78,7 @@ generateSnapshot () {
 
   # Generate the snapshot
   cd snapshots/private-tangle
-  docker run --rm -v "$PWD:/output_dir" -w /output_dir iotaledger/hornet:1.2.4 tool snap-gen \
+  docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/output_dir" -w /output_dir iotaledger/hornet:1.2.4 tool snap-gen \
    --networkID "private-tangle" --mintAddress "$(cat ../../address.txt)" \
    --treasuryAllocation 1000000000 --outputPath /output_dir/full_snapshot.bin
 
