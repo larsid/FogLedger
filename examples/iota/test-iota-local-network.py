@@ -1,9 +1,9 @@
 from fogledger.iota.IotaBasic import (IotaBasic)
-from fogledger.iota.NodeConfig import (NodeConfig)
-from fogledger.iota.CoordConfig import (CoordConfig)
-from fogledger.iota.SpammerConfig import (SpammerConfig)
-from fogledger.iota.ApiConfig import (ApiConfig)
-from fogledger.iota.WebAppConfig import (WebAppConfig)
+from fogledger.iota.config.NodeConfig import (NodeConfig)
+from fogledger.iota.config.CoordConfig import (CoordConfig)
+from fogledger.iota.config.SpammerConfig import (SpammerConfig)
+from fogledger.iota.config.ApiConfig import (ApiConfig)
+from fogledger.iota.config.WebAppConfig import (WebAppConfig)
 from typing import List
 from fogbed import (
     FogbedExperiment,
@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
     api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud)    
     web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud)
     
-    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2], conf_coord=cord, conf_spammer=spammer)
+    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2], conf_coord=cord, conf_spammer=spammer, conf_api=api, conf_web_app=web_app)
 
     fog = exp.add_virtual_instance('fog')
     create_links(fog, iota.ledgers)

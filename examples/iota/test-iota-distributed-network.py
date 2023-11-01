@@ -1,9 +1,9 @@
 from fogledger.iota.IotaBasic import (IotaBasic)
-from fogledger.iota.NodeConfig import (NodeConfig)
-from fogledger.iota.CoordConfig import (CoordConfig)
-from fogledger.iota.SpammerConfig import (SpammerConfig)
-from fogledger.iota.ApiConfig import (ApiConfig)
-from fogledger.iota.WebAppConfig import (WebAppConfig)
+from fogledger.iota.config.NodeConfig import (NodeConfig)
+from fogledger.iota.config.CoordConfig import (CoordConfig)
+from fogledger.iota.config.SpammerConfig import (SpammerConfig)
+from fogledger.iota.config.ApiConfig import (ApiConfig)
+from fogledger.iota.config.WebAppConfig import (WebAppConfig)
 from typing import List
 from fogbed import (
     VirtualInstance, setLogLevel, FogbedDistributedExperiment, Worker, Controller
