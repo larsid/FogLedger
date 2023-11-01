@@ -30,5 +30,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    package_data={'fogledger': ['data/*.sh', 'data/*.json']}
+    package_data={'fogledger': ['iota/data/*.sh', 'iota/data/*.json']}
 )

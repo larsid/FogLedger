@@ -1,11 +1,11 @@
 from fogbed import (
     Container, VirtualInstance, FogbedExperiment, FogbedDistributedExperiment
 )
-from .NodeConfig import NodeConfig
-from .CoordConfig import CoordConfig
-from .SpammerConfig import SpammerConfig
-from .ApiConfig import ApiConfig
-from .WebAppConfig import WebAppConfig
+from .config.NodeConfig import NodeConfig
+from .config.CoordConfig import CoordConfig
+from .config.SpammerConfig import SpammerConfig
+from .config.ApiConfig import ApiConfig
+from .config.WebAppConfig import WebAppConfig
 from typing import List
 from typing import Dict
 import os
@@ -57,7 +57,7 @@ class IotaBasic:
 
     def installPrivateTangle(self):
         print("install tangle")
-        path_script = pkg_resources.resource_filename('fogledger', 'data')
+        path_script = pkg_resources.resource_filename('fogledger.iota', 'data')
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
         print("finished script...")
