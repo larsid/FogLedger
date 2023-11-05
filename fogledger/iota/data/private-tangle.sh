@@ -24,6 +24,8 @@ command="$1"
 
 COO_BOOTSTRAP_WAIT=10
 
+DIR=/tmp/iota/$USER
+
 
 
 clean () {
@@ -38,14 +40,14 @@ clean () {
 
 # Sets up the necessary directories if they do not exist yet
 volumeSetup () {
-  mkdir -p "/tmp/iota/config"
-  cp -r config-node.json "/tmp/iota/config/config-node.json"
-  cp -r config-coo.json "/tmp/iota/config/config-coo.json"
-  cp -r config-spammer.json "/tmp/iota/config/config-spammer.json"
-  cp -r private-network.json "/tmp/iota/config/my-network.json"
-  cp -r api.config.local.json "/tmp/iota/config/api.config.local.json"
-  cp -r webapp.config.local.json "/tmp/iota/config/webapp.config.local.json"
-  cd "/tmp/iota"
+  mkdir -p "${DIR}/config"
+  cp -r config-node.json "${DIR}/config/config-node.json"
+  cp -r config-coo.json "${DIR}/config/config-coo.json"
+  cp -r config-spammer.json "${DIR}/config/config-spammer.json"
+  cp -r private-network.json "${DIR}/config/my-network.json"
+  cp -r api.config.local.json "${DIR}/config/api.config.local.json"
+  cp -r webapp.config.local.json "${DIR}/config/webapp.config.local.json"
+  cd "${DIR}"
 
   # Snapshots
   if ! [ -d ./snapshots ]; then
@@ -56,7 +58,7 @@ volumeSetup () {
     mkdir ./snapshots/private-tangle
   fi
   
-  chmod -R 777 "/tmp/iota"
+  chmod -R 777 "${DIR}"
 
 }
 

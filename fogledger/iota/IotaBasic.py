@@ -39,6 +39,7 @@ class IotaBasic:
         self.conf_web_app = conf_web_app
         self.web_app:Container
         self.coo_public_key:str
+        self.user = os.getenv('USER')
         self.installPrivateTangle()
         self.createContainers()
 
@@ -137,7 +138,7 @@ class IotaBasic:
     
     def configureApi(self):
         print("\nConfiguring api...")
-        file_path = os.path.join("/tmp", "iota")
+        file_path = os.path.join("/tmp", "iota", self.user)
         config_file_network_api = json.loads(IotaBasic.read_file(f"{file_path}/config/my-network.json"))
         config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
         node_name = self.conf_nodes[0].name
@@ -154,7 +155,7 @@ class IotaBasic:
 
     def configureWebApp(self):
         print("\nConfiguring web app...")
-        file_path = os.path.join("/tmp", "iota")
+        file_path = os.path.join("/tmp", "iota", self.user)        
         config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
         config_file_web_app = json.loads(IotaBasic.read_file(f"{file_path}/config/webapp.config.local.json"))
         self.web_app.cmd("mkdir -p /app/api/src/data")
@@ -168,7 +169,7 @@ class IotaBasic:
 
     def configureNodes(self):
         print("\nConfiguring nodes...")
-        file_path = os.path.join("/tmp", "iota")
+        file_path = os.path.join("/tmp", "iota", self.user)
         config_file_coor = json.loads(IotaBasic.read_file(f"{file_path}/config/config-coo.json"))
         config_file_spammer = json.loads(IotaBasic.read_file(f"{file_path}/config/config-spammer.json"))
         config_file_node = json.loads(IotaBasic.read_file(f"{file_path}/config/config-node.json"))
@@ -222,7 +223,8 @@ class IotaBasic:
             coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
             self.coo_public_key = coo.cmd(
                 f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-            file_path = os.path.join("/tmp", "iota")
+
+            file_path = os.path.join("/tmp", "iota", self.user)
             command = f'echo {self.coo_public_key} > {file_path}/coo-milestones-public-key.txt'
             os.system(command)
             for node in self.nodes.values():
@@ -238,7 +240,7 @@ class IotaBasic:
     def copySnapshotToNodes(self):
         print("\nCopying snapshot to each node")
         # Executar o comando base64 no arquivo full_snapshot.bin e capturar a saída
-        file_path = os.path.join("/tmp", "iota", "snapshots", "private-tangle","full_snapshot.bin")
+        file_path = os.path.join("/tmp", "iota", self.user, "snapshots", "private-tangle","full_snapshot.bin")
         command = f"base64 {file_path}"
         output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout
         # Salvar a saída em uma variável
