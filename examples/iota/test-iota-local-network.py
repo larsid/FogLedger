@@ -41,7 +41,7 @@ if (__name__ == '__main__'):
     api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud)    
     web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud)
     
-    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2], conf_coord=cord, conf_spammer=spammer, conf_api=api, conf_web_app=web_app)
+    iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2], conf_coord=cord, conf_spammer=spammer)
 
     fog = exp.add_virtual_instance('fog')
     create_links(fog, iota.ledgers)
