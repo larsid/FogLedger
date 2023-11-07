@@ -19,27 +19,18 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment(controller_ip='35.245.131.33', controller_port=6633)
     worker1 = exp.add_worker(ip = '35.231.54.58',  controller=Controller('35.245.131.33', 6633))
     worker2 = exp.add_worker(ip = '34.145.164.105',  controller=Controller('35.245.131.33', 6633))
-    
-    edge1 = exp.add_virtual_instance('edge1')
-    edge2 = exp.add_virtual_instance('edge2')
-    edge3 = exp.add_virtual_instance('edge3')
-    edge4 = exp.add_virtual_instance('edge4')
 
-    node1 = NodeConfig(name='node1', port_bindings={'8081':'8081', '14265':'14265'}, ledger=edge1)
-    node2 = NodeConfig(name='node2', port_bindings={'8081':'8082'}, ledger=edge2)
-    node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'}, ledger=edge3)
-    node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'}, ledger=edge4)
+    node1 = NodeConfig(name='node1', port_bindings={'8081':'8081', '14265':'14265'})
+    node2 = NodeConfig(name='node2', port_bindings={'8081':'8082'})
+    node3 = NodeConfig(name='node3', port_bindings={'8081':'8083'})
+    node4 = NodeConfig(name='node4', port_bindings={'8081':'8084'})
     
-    edge5 = exp.add_virtual_instance('edge5')
-    cord = CoordConfig(name='cord', port_bindings={'8081':'8085'}, ledger=edge5, interval='60s')
+    cord = CoordConfig(name='cord', port_bindings={'8081':'8085'}, interval='60s')
     
-    edge6 = exp.add_virtual_instance('edge6')
-    spammer = SpammerConfig(name='spammer', port_bindings={'8081':'8086'}, ledger=edge6, message ='one-click-tangle.')
-    
-    cloud1 = exp.add_virtual_instance('cloud1')
-    cloud2 = exp.add_virtual_instance('cloud2')
-    api = ApiConfig(name='api', port_bindings={'4000':'4000'}, ledger=cloud1)    
-    web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'}, ledger=cloud2)
+    spammer = SpammerConfig(name='spammer', port_bindings={'8081':'8086'}, message ='one-click-tangle.')
+   
+    api = ApiConfig(name='api', port_bindings={'4000':'4000'})    
+    web_app = WebAppConfig(name='web_app', port_bindings={'80':'82'})
     
     iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer)
 
