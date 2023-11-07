@@ -22,10 +22,11 @@ class IotaBasic:
         exp: Union[FogbedExperiment, FogbedDistributedExperiment],
         prefix: str = 'cloud',
         conf_nodes: List[NodeConfig] = [],
-        conf_coord: CoordConfig = None,
-        conf_spammer: SpammerConfig = None,
+        conf_coord: CoordConfig = CoordConfig(),
+        conf_spammer: SpammerConfig = SpammerConfig(),
         conf_api: ApiConfig = None,
-        conf_web_app: WebAppConfig = None
+        conf_web_app: WebAppConfig = None,
+        nodes_number: int = None
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: Dict[str, Container] = {}
@@ -39,11 +40,13 @@ class IotaBasic:
         self.conf_web_app = conf_web_app
         self.web_app:Container
         self.coo_public_key:str
+        self.nodes_number = nodes_number
         self.user = os.getenv('USER')
         self.installPrivateTangle()
         self.createContainers()
 
-    def _create_node(self, ledger: VirtualInstance, node:Container):
+    def _create_node(self, node:Container):
+        ledger = self.exp.add_virtual_instance(f'{self.prefix}{node.name}')
         self.exp.add_docker(
             container=node,
             datacenter=ledger)
@@ -62,72 +65,81 @@ class IotaBasic:
         path_private_tangle = os.path.join(path_script, "private-tangle.sh")
         subprocess.run(["/bin/bash", path_private_tangle, "install"], check=True, cwd=path_script)
         print("finished script...")
+    
+    def define_nodes(self, index: int, node_conf: NodeConfig = None):
+        name = node_conf.name if node_conf and node_conf.name is not None else f'{self.prefix}node{index}'
+        ip = node_conf.ip if node_conf and node_conf.ip is not None else None
+        port_bindings = node_conf.port_bindings if node_conf and node_conf.port_bindings is not None else {}
+        node = Container(
+            name=name,
+            dimage='larsid/fogbed-iota-node:v3.0.4-beta',
+            ip=ip,
+            port_bindings=port_bindings,
+            ports=['14265', '8081', '1883', '15600', '14626/udp']
+        )
+        self._create_node(node)
+
 
     def createContainers(self):
         ### NODES ###
-        for index, node_conf in enumerate(self.conf_nodes):
-            name = node_conf.name
-            ip = node_conf.ip
-            port_bindings = node_conf.port_bindings
-            
-            node = Container(
-                name=name,
-                dimage='larsid/fogbed-iota-node:v3.0.4-beta',
-                ip=ip,
-                port_bindings=port_bindings,
-                ports=['14265', '8081', '1883', '15600', '14626/udp']
-            )
-            self._create_node(node_conf.ledger,node)
+        if self.nodes_number is not None:
+            for index in range(self.nodes_number + 1):
+                self.define_nodes(index)
+        else:
+            for index, node_conf in enumerate(self.conf_nodes):
+                self.define_nodes(index, node_conf = node_conf)    
 
         ### COO ###
-        coo = Container(
-            name=self.conf_coord.name,
-            ip = self.conf_coord.ip,
-            port_bindings = self.conf_coord.port_bindings,
+        self.coo = Container(
+            name = self.conf_coord.name if self.conf_coord and self.conf_coord.name is not None else f'{self.prefix}coo',
+            ip = self.conf_coord.ip if self.conf_coord and self.conf_coord.ip is not None else None,
+            port_bindings = self.conf_coord.port_bindings if self.conf_coord and self.conf_coord.port_bindings is not None else {},
             dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
-        self._create_node(self.conf_coord.ledger,coo)
+        self._create_node(self.coo)
 
         ### spammer ###
-        spammer = Container(
-            name= self.conf_spammer.name,
-            ip = self.conf_spammer.ip,
-            port_bindings = self.conf_spammer.port_bindings,
+        self.spammer = Container(
+            name = self.conf_spammer.name if self.conf_spammer and self.conf_spammer.name is not None else f'{self.prefix}spam',
+            ip = self.conf_spammer.ip if self.conf_spammer and self.conf_spammer.ip is not None else None,
+            port_bindings = self.conf_spammer.port_bindings if self.conf_spammer and self.conf_spammer.port_bindings is not None else {},
             dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             ports=['15600', '14626/udp']
         )
-        self._create_node(self.conf_spammer.ledger,spammer)
+        self._create_node(self.spammer)
 
         if(self.conf_api is not None and self.conf_web_app is not None):
             ### API ###
             api = Container(
-                name= self.conf_api.name,
-                ip = self.conf_api.ip,
-                port_bindings = self.conf_api.port_bindings,
+                name = self.conf_api.name if self.conf_api and self.conf_api.name is not None else f'{self.prefix}api',
+                ip = self.conf_api.ip if self.conf_api and self.conf_api.ip is not None else None,
+                port_bindings = self.conf_api.port_bindings if self.conf_api and self.conf_api.port_bindings is not None else {},
                 dimage='larsid/fogbed-iota-api:v3.0.4-beta',
                 ports=['4000']
             )
+            ledger_api = self.exp.add_virtual_instance(f'{self.prefix}{api.name}')
             self.exp.add_docker(
                 container=api,
-                datacenter=self.conf_api.ledger)
-            self.ledgers.append(self.conf_api.ledger)
+                datacenter=ledger_api)
+            self.ledgers.append(ledger_api)
 
             self.api = api
 
             ### WebApp ###
             web_app = Container(
-                name= self.conf_web_app.name,
-                ip = self.conf_web_app.ip,
-                port_bindings = self.conf_web_app.port_bindings,
+                name = self.conf_web_app.name if self.conf_web_app and self.conf_web_app.name is not None else f'{self.prefix}webapp',
+                ip = self.conf_web_app.ip if self.conf_web_app and self.conf_web_app.ip is not None else None,
+                port_bindings = self.conf_web_app.port_bindings if self.conf_web_app and self.conf_web_app.port_bindings is not None else {},
                 dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
                 ports=['4200']
             )
+            ledger_web = self.exp.add_virtual_instance(f'{self.prefix}{api.name}')
             self.exp.add_docker(
                 container=web_app,
-                datacenter=self.conf_web_app.ledger)
-            self.ledgers.append(self.conf_web_app.ledger)
+                datacenter=ledger_web)
+            self.ledgers.append(ledger_web)
 
             self.web_app = web_app
 
@@ -175,10 +187,10 @@ class IotaBasic:
         config_file_node = json.loads(IotaBasic.read_file(f"{file_path}/config/config-node.json"))
         for node in self.nodes.values():
             json_data = {}
-            if(node.name == self.conf_coord.name):
+            if(node.name == self.coo.name):
                 json_data = config_file_coor
                 json_data["coordinator"]["interval"] = self.conf_coord.interval
-            elif(node.name == self.conf_spammer.name):
+            elif(node.name == self.spammer.name):
                 json_data = config_file_spammer
                 json_data["spammer"]["message"] = self.conf_spammer.message
             else:
@@ -214,28 +226,23 @@ class IotaBasic:
     def setupCoordinator(self):
         print("\nSetting up the Coordinator")
         coo_key_pair_file = "coo-milestones-key-pair.txt"
-        coo = self.searchNode(self.conf_coord.name)
-        if coo is not None:
-            coo.cmd('mkdir -p /app/coo-state')
-            coo.cmd(f'./hornet tool ed25519-key > {coo_key_pair_file}')
-            COO_PRV_KEYS = coo.cmd(
-                f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /private key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-            coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
-            self.coo_public_key = coo.cmd(
-                f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-
-            file_path = os.path.join("/tmp", "iota", self.user)
-            command = f'echo {self.coo_public_key} > {file_path}/coo-milestones-public-key.txt'
-            os.system(command)
-            for node in self.nodes.values():
-                json_data = node.cmd(f'cat /app/config.json').strip("> >")
-                json_data = json.loads(json_data)
-                json_data["protocol"]["publicKeyRanges"][0]["key"] = self.coo_public_key
-                updated_data = json.dumps(json_data)
-                node.cmd(f"echo \'{updated_data}\' | jq . > /app/config.json")
-            print("Coordinator set up! ✅")
-        else:
-            print("Coordinator not found! ❌")
+        self.coo.cmd('mkdir -p /app/coo-state')
+        self.coo.cmd(f'./hornet tool ed25519-key > {coo_key_pair_file}')
+        COO_PRV_KEYS = self.coo.cmd(
+            f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /private key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
+        self.coo.cmd(f'export COO_PRV_KEYS={COO_PRV_KEYS}')
+        self.coo_public_key = self.coo.cmd(
+            f'cat {coo_key_pair_file} | awk -F : \'{{if ($1 ~ /public key/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
+        file_path = os.path.join("/tmp", "iota", self.user)
+        command = f'echo {self.coo_public_key} > {file_path}/coo-milestones-public-key.txt'
+        os.system(command)
+        for node in self.nodes.values():
+            json_data = node.cmd(f'cat /app/config.json').strip("> >")
+            json_data = json.loads(json_data)
+            json_data["protocol"]["publicKeyRanges"][0]["key"] = self.coo_public_key
+            updated_data = json.dumps(json_data)
+            node.cmd(f"echo \'{updated_data}\' | jq . > /app/config.json")
+        print("Coordinator set up! ✅")
 
     def copySnapshotToNodes(self):
         print("\nCopying snapshot to each node")
@@ -255,23 +262,19 @@ class IotaBasic:
     def bootstrapCoordinator(self):
         print("Bootstrapping the Coordinator...")
         # Need to do it again otherwise the coo will not bootstrap
-        coo = self.searchNode(self.conf_coord.name)
-        if coo is not None:
-            coo.cmd(
-                f'./hornet --cooBootstrap --cooStartIndex 0 > coo.bootstrap.log &')
-            print("Waiting for $bootstrap_tick seconds ... ⏳")
-            time.sleep(30)
-            bootstrapped = coo.cmd(
-                'grep "milestone issued (1)" coo.bootstrap.log | cat')
-            if (bootstrapped):
-                print("Coordinator bootstrapped successfully! ✅")
-                coo.cmd(f'pkill -f "hornet --cooBootstrap --cooStartIndex 0"')
-                coo.cmd('rm ./coo.bootstrap.container')
-                time.sleep(10)
-            else:
-                print("Error. Coordinator has not been boostrapped.")
+        self.coo.cmd(
+            f'./hornet --cooBootstrap --cooStartIndex 0 > coo.bootstrap.log &')
+        print("Waiting for $bootstrap_tick seconds ... ⏳")
+        time.sleep(30)
+        bootstrapped = self.coo.cmd(
+            'grep "milestone issued (1)" coo.bootstrap.log | cat')
+        if (bootstrapped):
+            print("Coordinator bootstrapped successfully! ✅")
+            self.coo.cmd(f'pkill -f "hornet --cooBootstrap --cooStartIndex 0"')
+            self.coo.cmd('rm ./coo.bootstrap.container')
+            time.sleep(10)
         else:
-            print("Coordinator not found! ❌")
+            print("Error. Coordinator has not been boostrapped.")
 
     def startContainers(self):
         print("\nStarting the containers...")
