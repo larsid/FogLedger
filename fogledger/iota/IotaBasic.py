@@ -135,7 +135,7 @@ class IotaBasic:
                 dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
                 ports=['4200']
             )
-            ledger_web = self.exp.add_virtual_instance(f'{self.prefix}{api.name}')
+            ledger_web = self.exp.add_virtual_instance(f'{self.prefix}{web_app.name}')
             self.exp.add_docker(
                 container=web_app,
                 datacenter=ledger_web)
