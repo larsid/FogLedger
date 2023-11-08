@@ -24,8 +24,8 @@ class IotaBasic:
         conf_nodes: List[NodeConfig] = [],
         conf_coord: CoordConfig = CoordConfig(),
         conf_spammer: SpammerConfig = SpammerConfig(),
-        conf_api: ApiConfig = None,
-        conf_web_app: WebAppConfig = None,
+        conf_api: ApiConfig = ApiConfig(),
+        conf_web_app: WebAppConfig = WebAppConfig(),
         nodes_number: int = None
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
@@ -170,12 +170,13 @@ class IotaBasic:
         file_path = os.path.join("/tmp", "iota", self.user)        
         config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
         config_file_web_app = json.loads(IotaBasic.read_file(f"{file_path}/config/webapp.config.local.json"))
+        api_ip = self.conf_web_app.api_ip if self.conf_web_app.api_ip is not None else self.api.ip
         self.web_app.cmd("mkdir -p /app/api/src/data")
         self.web_app.cmd("mkdir -p /app/client/src/assets/config")
         self.web_app.cmd(f"echo \'{json.dumps(config_file_api)}\' | jq . > /app/api/src/data/config.local.json")
         self.web_app.cmd(f"echo \'{json.dumps(config_file_web_app)}\' | jq . > /app/client/src/assets/config/config.local.json")
         self.web_app.cmd(f"mv /app/public/env.js.template /app/public/env.js")
-        self.web_app.cmd(f"echo 'window.env = {{API_ENDPOINT: \"http://{self.api.ip}:4000/\"}};' > ./public/env.js")
+        self.web_app.cmd(f"echo 'window.env = {{API_ENDPOINT: \"http://{api_ip}:{self.conf_web_app.api_port}/\"}};' > ./public/env.js")
         self.web_app.cmd(f"rm app/client/package-lock.json")
         print("WebApp configured! ✅")
 

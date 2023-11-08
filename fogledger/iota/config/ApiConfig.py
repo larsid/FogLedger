@@ -4,5 +4,5 @@ from fogbed import (
    VirtualInstance
 )
 class ApiConfig(NodeConfig):
-    def __init__(self, name: str, port_bindings: Dict[str, str],  ip:str=None):
+    def __init__(self, name: str = None, port_bindings: Dict[str, str] = None,  ip:str=None):
         super().__init__(name, port_bindings, ip)
