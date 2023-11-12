@@ -2,7 +2,7 @@
 
 # FogLedger
 
-FogLedger is plugin to Fogbed. It is framework and toolset integration for rapid prototyping of fog components in virtual-ized environments using a desktop approach for DLTs. Its design meets the postulated requirements of low cost, flexible setup and compatibility with real world technologies. The components are based on Mininet network emulator with Docker container instances as fog virtual nodes.
+FogLedger is a plugin for Fogbed. It is a framework and toolset integration for the rapid prototyping of fog components in virtualized environments using a desktop approach for DLTs. Its design meets the postulated requirements of low cost, flexible setup, and compatibility with real-world technologies. The components are based on a Mininet network emulator with Docker container instances as fog virtual nodes.
 
 ## Install
 
@@ -56,7 +56,7 @@ sudo python3 test-local-network.py
 sudo python3 test-distributed-network.py
 ```
 
-## Example: A local network with 4 nodes
+## Example: A local network with four nodes
 
 ```python
 from typing import List
