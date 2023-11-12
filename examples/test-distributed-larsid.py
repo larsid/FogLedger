@@ -79,7 +79,7 @@ if (__name__ == '__main__'):
         print('Making requests in background...')
         print(edge.containers['ariesAgent'].cmd(f"python -m src.test_transactions 2>&1 &"))
         # print(edge.containers['ariesAgent'].cmd(f"python -m src.parse_result"))
-        input('Press any key...')
+        input('Press any key to stop...')
     except Exception as ex:
         print(ex)
     finally:
