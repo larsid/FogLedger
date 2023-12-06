@@ -20,16 +20,18 @@ class IotaBasic:
     def __init__(
         self,
         exp: Union[FogbedExperiment, FogbedDistributedExperiment],
-        prefix: str = 'cloud',
+        prefix: str = 'iota',
+        virtual_instance: VirtualInstance = None,
         conf_nodes: List[NodeConfig] = [],
         conf_coord: CoordConfig = CoordConfig(),
         conf_spammer: SpammerConfig = SpammerConfig(),
-        conf_api: ApiConfig = ApiConfig(),
-        conf_web_app: WebAppConfig = WebAppConfig(),
+        conf_api: ApiConfig = None,
+        conf_web_app: WebAppConfig = None,
         nodes_number: int = None
     ) -> None:
+        self.virtual_instance = virtual_instance
         self.ledgers: List[VirtualInstance] = []
-        self.nodes: Dict[str, Container] = {}
+        self.containers: Dict[str, Container] = {}
         self.api:Container
         self.exp = exp
         self.prefix = prefix
@@ -45,14 +47,17 @@ class IotaBasic:
         self.installPrivateTangle()
         self.createContainers()
 
-    def _create_node(self, node:Container):
-        ledger = self.exp.add_virtual_instance(f'{self.prefix}{node.name}')
+    def _create_container(self, container:Container, is_node:bool = True):
+        ledger = self.exp.add_virtual_instance(f'{self.prefix}{container.name}')
+        if self.virtual_instance is not None:
+            ledger = self.virtual_instance
         self.exp.add_docker(
-            container=node,
+            container=container,
             datacenter=ledger)
-        self.nodes[f'{self.prefix}_{ledger.label}_{node.name}'] = node
+        if is_node:
+            self.containers[f'{self.prefix}_{ledger.label}_{container.name}'] = container
         self.ledgers.append(ledger)
-        return node
+        return container
 
     @staticmethod
     def read_file(file_path):
@@ -77,7 +82,7 @@ class IotaBasic:
             port_bindings=port_bindings,
             ports=['14265', '8081', '1883', '15600', '14626/udp']
         )
-        self._create_node(node)
+        self._create_container(node)
 
 
     def createContainers(self):
@@ -98,7 +103,7 @@ class IotaBasic:
             environment={'COO_PRV_KEYS': ''},
             ports=['15600']
         )
-        self._create_node(self.coo)
+        self._create_container(self.coo)
 
         ### spammer ###
         self.spammer = Container(
@@ -108,7 +113,7 @@ class IotaBasic:
             dimage='larsid/fogbed-iota-node:v3.0.4-beta',
             ports=['15600', '14626/udp']
         )
-        self._create_node(self.spammer)
+        self._create_container(self.spammer)
 
         if(self.conf_api is not None and self.conf_web_app is not None):
             ### API ###
@@ -119,32 +124,24 @@ class IotaBasic:
                 dimage='larsid/fogbed-iota-api:v3.0.4-beta',
                 ports=['4000']
             )
-            ledger_api = self.exp.add_virtual_instance(f'{self.prefix}{api.name}')
-            self.exp.add_docker(
-                container=api,
-                datacenter=ledger_api)
-            self.ledgers.append(ledger_api)
+            self._create_container(api, False)
 
             self.api = api
 
             ### WebApp ###
             web_app = Container(
-                name = self.conf_web_app.name if self.conf_web_app and self.conf_web_app.name is not None else f'{self.prefix}webapp',
+                name = self.conf_web_app.name if self.conf_web_app and self.conf_web_app.name is not None else f'{self.prefix}web',
                 ip = self.conf_web_app.ip if self.conf_web_app and self.conf_web_app.ip is not None else None,
                 port_bindings = self.conf_web_app.port_bindings if self.conf_web_app and self.conf_web_app.port_bindings is not None else {},
                 dimage='larsid/fogbed-iota-web-app:v3.0.4-beta',
                 ports=['4200']
             )
-            ledger_web = self.exp.add_virtual_instance(f'{self.prefix}{web_app.name}')
-            self.exp.add_docker(
-                container=web_app,
-                datacenter=ledger_web)
-            self.ledgers.append(ledger_web)
+            self._create_container(web_app, False)
 
             self.web_app = web_app
 
     def searchNode(self, node_name: str):
-        for node in self.nodes.values():
+        for node in self.containers.values():
             if node.name == node_name:
                 return node
     
@@ -155,6 +152,7 @@ class IotaBasic:
         config_file_api = json.loads(IotaBasic.read_file(f"{file_path}/config/api.config.local.json"))
         node_name = self.conf_nodes[0].name
         node = self.searchNode(node_name)
+        print(f"Node name: {node.name}")
         if(self.coo_public_key is not None):
             config_file_network_api["coordinatorAddress"] = self.coo_public_key
             config_file_network_api["provider"] = f"http://{node.ip}:14265"
@@ -186,7 +184,7 @@ class IotaBasic:
         config_file_coor = json.loads(IotaBasic.read_file(f"{file_path}/config/config-coo.json"))
         config_file_spammer = json.loads(IotaBasic.read_file(f"{file_path}/config/config-spammer.json"))
         config_file_node = json.loads(IotaBasic.read_file(f"{file_path}/config/config-node.json"))
-        for node in self.nodes.values():
+        for node in self.containers.values():
             json_data = {}
             if(node.name == self.coo.name):
                 json_data = config_file_coor
@@ -204,17 +202,17 @@ class IotaBasic:
     # P2P identities are generated for each node
     def setupIdentities(self):
         print("\nGenerating P2P identities for each node")
-        for node in self.nodes.values():
+        for node in self.containers.values():
             node.cmd(f'./hornet tool p2pidentity-gen > {node.name}.identity.txt')
         print("P2P identities generated! ✅")
 
     # Extracts the peerID from the identity file
     def extractPeerID(self):
         print("\nExtracting peerID from the identity file")
-        for node_ext in self.nodes.values():
+        for node_ext in self.containers.values():
             peerID = node_ext.cmd(
                 f'cat {node_ext.name}.identity.txt | awk -F : \'{{if ($1 ~ /PeerID/) print $2}}\' | sed "s/ \+//g" | tr -d "\n" | tr -d "\r"').strip("> >")
-            for node_int in self.nodes.values():
+            for node_int in self.containers.values():
                 if node_int.name != node_ext.name:
                     json_data = node_int.cmd(f'cat /app/peering.json').strip("> >")
                     json_data = json.loads(json_data)
@@ -237,7 +235,7 @@ class IotaBasic:
         file_path = os.path.join("/tmp", "iota", self.user)
         command = f'echo {self.coo_public_key} > {file_path}/coo-milestones-public-key.txt'
         os.system(command)
-        for node in self.nodes.values():
+        for node in self.containers.values():
             json_data = node.cmd(f'cat /app/config.json').strip("> >")
             json_data = json.loads(json_data)
             json_data["protocol"]["publicKeyRanges"][0]["key"] = self.coo_public_key
@@ -253,7 +251,7 @@ class IotaBasic:
         output = subprocess.run(command, capture_output=True, text=True, shell=True).stdout
         # Salvar a saída em uma variável
         output_b64 = output.strip()
-        for node in self.nodes.values():
+        for node in self.containers.values():
             node.cmd("mkdir -p /app/snapshots/private-tangle")
             node.cmd(f"echo '{output_b64}' | base64 -d > /app/snapshots/private-tangle/full_snapshot.bin")
 
@@ -279,7 +277,7 @@ class IotaBasic:
 
     def startContainers(self):
         print("\nStarting the containers...")
-        for node in self.nodes.values():
+        for node in self.containers.values():
             node.cmd(f'./hornet > {node.name}.log &')
             print(f"\nStarting {node.name}... ⏳")
             time.sleep(3)
