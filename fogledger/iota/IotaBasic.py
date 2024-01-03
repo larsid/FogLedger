@@ -55,7 +55,7 @@ class IotaBasic:
             container=container,
             datacenter=ledger)
         if is_node:
-            self.containers[f'{self.prefix}_{ledger.label}_{container.name}'] = container
+            self.containers[f'{container.name}'] = container
         self.ledgers.append(ledger)
         return container
 
