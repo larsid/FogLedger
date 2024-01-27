@@ -43,7 +43,7 @@ class IndyBasic:
             
             ip = config_nodes[i].ip
             
-            port_bindings = config_nodes[i].port_bindings if ("port_bindings" in config_nodes[i]) else {}
+            port_bindings = config_nodes[i].port_bindings
             
             node = Container(
                 name=name,
