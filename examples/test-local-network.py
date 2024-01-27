@@ -1,7 +1,7 @@
 from typing import List
 from fogbed import (
     Container, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
+    setLogLevel, FogbedExperiment, Worker
 )
 import time
 
@@ -9,13 +9,13 @@ from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
-def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]):
-    for device in datacenters:
-        worker.add(device, reachable=True)
+def create_links(cloud: VirtualInstance, devices: List[VirtualInstance]):
+    for device in devices:
+        exp.add_link(device, cloud)
 
 
 if (__name__ == '__main__'):
-    exp = FogbedDistributedExperiment()
+    exp = FogbedExperiment()
 
     # Webserver to check metrics
     cloud = exp.add_virtual_instance('cloud')
@@ -61,11 +61,7 @@ if (__name__ == '__main__'):
         ]
     )
 
-    # Add worker for cli
-    workerServer = exp.add_worker(f'larsid01')
-    workerServer.add(cloud, reachable=True)
-    for i in range(2, len(indyCloud.ledgers)+2):
-        workerServer.add(indyCloud.ledgers[i-2], reachable=True)
+    create_links(cloud, indyCloud.ledgers)
 
     try:
         exp.start()
