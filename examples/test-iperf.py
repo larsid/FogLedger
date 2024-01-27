@@ -2,7 +2,6 @@ from typing import List
 from fogbed import (FogbedDistributedExperiment, Worker, Container, Controller
 )
 
-from fogledger.indy import (IndyBasic)
 
 if (__name__ == '__main__'):
 

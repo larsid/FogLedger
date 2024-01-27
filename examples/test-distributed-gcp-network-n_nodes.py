@@ -1,12 +1,12 @@
 from typing import List
 from fogbed import (
     Container, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker, Controller
+    setLogLevel, FogbedDistributedExperiment, Worker
 )
 import time
 import os
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -48,10 +48,10 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(
         exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes=[
-            {'name': 'node1', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip':'35.199.124.171'},
-            {'name': 'node2', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.76.173.182'},
-            {'name': 'node3', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '34.87.194.83'},
-            {'name': 'node4', 'port_bindings': {9701: 9701, 9702: 9702}, 'ip': '35.189.132.181'},
+            Node(name = 'node1', port_bindings =  {9701: 9701, 9702: 9702}, ip = '35.199.124.171'),
+            Node(name = 'node2', port_bindings = {9701: 9701, 9702: 9702}, ip =  '34.76.173.182'),
+            Node(name = 'node3', port_bindings = {9701: 9701, 9702: 9702}, ip =  '34.87.194.83'),
+            Node(name = 'node4', port_bindings = {9701: 9701, 9702: 9702}, ip =  '35.189.132.181'),
         ])
     workers = []
 

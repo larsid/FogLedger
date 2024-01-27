@@ -1,13 +1,11 @@
-from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
-    setLogLevel, FogbedDistributedExperiment, Worker
+    Container, Resources,
+    setLogLevel, FogbedDistributedExperiment,
 )
 import time
 import os
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -19,7 +17,12 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='cloud',  nodes_number=4)
+        exp=exp, trustees_path='tmp/trustees.csv', config_nodes= [
+            Node(name='cloud1'),
+            Node(name='cloud2'),
+            Node(name='cloud3'),
+            Node(name='cloud4'),
+        ])
 
     acaPy1 = Container(
         name='aca-py1',

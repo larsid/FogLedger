@@ -5,7 +5,7 @@ from fogbed import (
 )
 import time
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -14,7 +14,12 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
     # Define Indy network 
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='examples/tmp/trustees.csv', prefix='ledger',  nodes_number=4)
+        exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes= [
+            Node(name='ledger1'),
+            Node(name='ledger2'),
+            Node(name='ledger3'),
+            Node(name='ledger4'),
+        ])
     
 
     # Webserver to check metrics
