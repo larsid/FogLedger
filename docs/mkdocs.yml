@@ -54,8 +54,8 @@ markdown_extensions:
   - pymdownx.mark
   - attr_list
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 nav:
   - Introduction: 'index.md'
@@ -68,5 +68,5 @@ nav:
         - Using Webserver: 'indy/examples/test-local-webserver-network.md'
         - Distributed Emulation: 'indy/examples/test-distributed-network.md'
       - Resources:
-        - Webserver: 'indy/resources/webserve.md'
+        - Webserver: 'indy/resources/webserver.md'
     - IOTA Tangle: 'iota/README.md'
