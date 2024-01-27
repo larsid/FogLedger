@@ -6,7 +6,7 @@ from fogbed import (
 import time
 import os
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -44,11 +44,11 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes=[
-            {'name': 'node1'},
-            {'name': 'node2'},
-            {'name': 'node3'},
-            {'name': 'node4'},
+        exp=exp, trustees_path='examples/tmp/trustees.csv', config_nodes= [
+            Node(name='node1'),
+            Node(name='node2'),
+            Node(name='node3'),
+            Node(name='node4'),
         ])
 
     exp.add_docker(
