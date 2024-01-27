@@ -7,7 +7,7 @@ import os
 import uuid
 import re
 import numpy
-from fogledger.indy import (Node) 
+from fogledger.indy.Node import (Node) 
 class IndyBasic:
     def __init__(
         self,
