@@ -7,14 +7,13 @@ import os
 import uuid
 import re
 import numpy
-
-
+from fogledger.indy.Node import (Node) 
 class IndyBasic:
     def __init__(
         self,
         exp: FogbedDistributedExperiment,
         trustees_path='tmp/trustees.csv',
-        config_nodes: List[dict] = []
+        config_nodes: List[Node] = []
     ) -> None:
         self.ledgers: List[VirtualInstance] = []
         self.nodes: List[Container] = []
@@ -33,19 +32,18 @@ class IndyBasic:
         for device in devices:
             self.exp.add_link(device, target)
 
-    def _create_virtual_instances(self, config_nodes: List[dict] = []) -> List[VirtualInstance]:
-        return [self.exp.add_virtual_instance(config['name']) for i, config in enumerate(config_nodes)]
+    def _create_virtual_instances(self, config_nodes: List[Node] = []) -> List[VirtualInstance]:
+        return [self.exp.add_virtual_instance(config.name) for i, config in enumerate(config_nodes)]
 
-    def _create_nodes(self, config_nodes: List[dict]) -> List[Container]:
+    def _create_nodes(self, config_nodes: List[Node]) -> List[Container]:
         nodes = []
         for i, ledger in enumerate(self.ledgers):
 
-            name = config_nodes[i]['name'] if (
-                "name" in config_nodes[i]) else str(i)
+            name = config_nodes[i].name
             
-            ip = config_nodes[i]['ip'] if ("ip" in config_nodes[i]) else None
+            ip = config_nodes[i].ip
             
-            port_bindings = config_nodes[i]['port_bindings'] if ("port_bindings" in config_nodes[i]) else {}
+            port_bindings = config_nodes[i].port_bindings
             
             node = Container(
                 name=name,

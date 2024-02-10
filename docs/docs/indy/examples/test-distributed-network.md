@@ -29,10 +29,10 @@ if (__name__ == '__main__'):
     fog = exp.add_virtual_instance('fog')
 
     indyCloud = IndyBasic(exp=exp, trustees_path = 'PATH_TO_FILE_TRUSTEES.csv', config_nodes=[
-            {'name': 'node1'},
-            {'name': 'node2'},
-            {'name': 'node3'},
-            {'name': 'node4'},
+            Node(name='node1'),
+            Node(name='node2'),
+            Node(name='node3'),
+            Node(name='node4'),
         ])
 
     worker1.add(fog, reachable=True)

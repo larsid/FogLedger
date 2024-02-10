@@ -6,7 +6,7 @@ from fogbed import (
 import time
 import os
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -58,14 +58,14 @@ if (__name__ == '__main__'):
     # Define Indy network in cloud
     indyCloud = IndyBasic(
         exp=exp, trustees_path='tmp/trustees.csv', config_nodes=[
-            {'name': 'trustee1', 'ip': '34.18.59.64',
-                'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee2', 'ip': '34.78.188.172',
-                'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee4', 'ip': '35.197.175.222',
-                'port_bindings': {9701: 9701, 9702: 9702}},
-            {'name': 'trustee3', 'ip': '34.146.249.115',
-                'port_bindings': {9701: 9701, 9702: 9702}},
+            Node(name = 'trustee1', ip= '34.18.59.64',
+                port_bindings= {9701: 9701, 9702: 9702}),
+            Node(name ='trustee2', ip= '34.78.188.172',
+                port_bindings= {9701: 9701, 9702: 9702}),
+            Node(name = 'trustee4', ip =  '35.197.175.222',
+                port_bindings = {9701: 9701, 9702: 9702}),
+            Node(name = 'trustee3', ip= '34.146.249.115',
+                port_bindings = {9701: 9701, 9702: 9702}),
 
         ])
     workers = []

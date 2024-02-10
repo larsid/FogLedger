@@ -5,7 +5,7 @@ from fogbed import (
 )
 import time
 
-from fogledger.indy import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 setLogLevel('info')
 
 
@@ -14,7 +14,12 @@ if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
     # Define Indy network
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='ledger',  nodes_number=4)
+        exp=exp, trustees_path='tmp/trustees.csv', config_nodes= [
+            Node(name='ledger1'),
+            Node(name='ledger2'),
+            Node(name='ledger3'),
+            Node(name='ledger4'),
+        ])
 
     # Webserver to check metrics
     fog = exp.add_virtual_instance('fog')
@@ -79,7 +84,7 @@ if (__name__ == '__main__'):
         print('Making requests in background...')
         print(edge.containers['ariesAgent'].cmd(f"python -m src.test_transactions 2>&1 &"))
         # print(edge.containers['ariesAgent'].cmd(f"python -m src.parse_result"))
-        input('Press any key...')
+        input('Press any key to stop...')
     except Exception as ex:
         print(ex)
     finally:

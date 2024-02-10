@@ -1,12 +1,10 @@
 from typing import List
 from fogbed import (
-    FogbedExperiment, Container, Resources, Services,
-    CloudResourceModel, EdgeResourceModel, FogResourceModel, VirtualInstance,
+    FogbedExperiment, Container, VirtualInstance,
     setLogLevel,
 )
-from indy.IndyBasic import (IndyBasic)
+from fogledger.indy import (IndyBasic, Node)
 import time
-import os
 
 setLogLevel('info')
 
@@ -22,7 +20,12 @@ if (__name__ == '__main__'):
 
     # Define Indy network in cloud
     indyCloud = IndyBasic(
-        exp=exp, trustees_path='tmp/trustees.csv', prefix='cloud',  nodes_number=3)
+        exp=exp, trustees_path='tmp/trustees.csv', config_nodes= [
+            Node(name='cloud1'),
+            Node(name='cloud2'),
+            Node(name='cloud3'),
+            Node(name='cloud4'),
+        ])
     edge1 = exp.add_virtual_instance('edge')
     edge2 = exp.add_virtual_instance('edge2')
 
