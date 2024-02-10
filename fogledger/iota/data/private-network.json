@@ -1,0 +1,14 @@
+{
+  "network": "custom",
+  "label": "Tangle",
+  "provider": "http://10.0.0.1:14265",
+  "protocolVersion": "chrysalis",
+  "feedEndpoint": "mqtt://10.0.0.1:1883",
+  "coordinatorAddress": "cf7c7b2b339e359c9eb94b0baf0dd4cd8e87105f3d7a9d77f639d6569e58c33f",
+  "primaryColor": "#131F37",
+  "secondaryColor": "#485776",
+  "isEnabled": true,
+  "showMarket": false,
+  "order": 0,
+  "description": "Private Tangle Network"
+}

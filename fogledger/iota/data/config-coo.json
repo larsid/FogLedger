@@ -1,0 +1,160 @@
+{
+    "restAPI": {
+        "jwtAuth": {
+            "enabled": false,
+            "salt": "HORNET"
+        },
+        "excludeHealthCheckFromAuth": false,
+        "publicRoutes": [
+            "/health",
+            "/mqtt",
+            "/api/v1/info",
+            "/api/v1/tips",
+            "/api/v1/messages*",
+            "/api/v1/transactions*",
+            "/api/v1/milestones*",
+            "/api/v1/outputs*",
+            "/api/v1/addresses*",
+            "/api/v1/treasury",
+            "/api/v1/receipts*",
+            "/api/plugins/participation/events*",
+            "/api/plugins/participation/outputs*",
+            "/api/plugins/participation/addresses*"
+        ],
+        "protectedRoutes": [
+            "/api/v1/*",
+            "/api/plugins/*"
+        ],
+        "bindAddress": "0.0.0.0:14265",
+        "powEnabled": true,
+        "powWorkerCount": 1,
+        "limits": {
+            "bodyLength": "1M",
+            "maxResults": 1000
+        }
+    },
+    "dashboard": {
+        "auth": {
+            "sessionTimeout": "72h",
+            "username": "admin",
+            "passwordHash": "a4d321654d646f4035bb1aafa98f9f032587a277e76a997a9422a830b471eb90",
+            "passwordSalt": "c953f8eaf20f19531bc3403fee0ebb9b747ed2aeacf612b453307b0f68592e00"
+        }
+    },
+    "db": {
+        "engine": "rocksdb",
+        "path": "/app/db",
+        "autoRevalidation": false
+    },
+    "snapshots": {
+        "depth": 50,
+        "interval": 200,
+        "fullPath": "snapshots/private-tangle/full_snapshot.bin",
+        "deltaPath": "snapshots/private-tangle/delta_snapshot_coo.bin",
+        "deltaSizeThresholdPercentage": 50.0
+    },
+    "protocol": {
+        "networkID": "private-tangle",
+        "bech32HRP": "atoipt",
+        "minPoWScore": 2000,
+        "milestonePublicKeyCount": 1,
+        "publicKeyRanges": [
+            {
+                "key": "80d5a1ffb800525df0cc6c87e5cbb182a3fcbc31b8966e829a7ee46f17df1729",
+                "start": 0,
+                "end": 0
+            }
+        ]
+    },
+    "pow": {
+        "refreshTipsInterval": "5s"
+    },
+    "requests": {
+        "discardOlderThan": "15s",
+        "pendingReEnqueueInterval": "5s"
+    },
+    "tangle": {
+        "milestoneTimeout": "120s"
+    },
+    "tipsel": {
+        "maxDeltaMsgYoungestConeRootIndexToCMI": 8,
+        "maxDeltaMsgOldestConeRootIndexToCMI": 13,
+        "belowMaxDepth": 15,
+        "nonLazy": {
+            "retentionRulesTipsLimit": 100,
+            "maxReferencedTipAge": "3s",
+            "maxChildren": 30,
+            "spammerTipsThreshold": 0
+        },
+        "semiLazy": {
+            "retentionRulesTipsLimit": 20,
+            "maxReferencedTipAge": "3s",
+            "maxChildren": 2,
+            "spammerTipsThreshold": 30
+        }
+    },
+    "node": {
+        "alias": "coo",
+        "profile": "auto",
+        "disablePlugins": [
+            "WarpSync",
+            "Spammer",
+            "Autopeering",
+            "ZMQ",
+            "MQTT",
+            "Prometheus",
+            "Profiling"
+        ],
+        "enablePlugins": [
+            "Coordinator",
+            "RestAPI",
+            "URTS"
+        ]
+    },
+    "coordinator": {
+        "stateFilePath": "./coo-state/coordinator.state",
+        "interval": "60s",
+        "checkpoints": {
+            "maxTrackedMessages": 10000
+        },
+        "tipsel": {
+            "minHeaviestBranchUnreferencedMessagesThreshold": 20,
+            "maxHeaviestBranchTipsPerCheckpoint": 10,
+            "randomTipsPerCheckpoint": 2,
+            "heaviestBranchSelectionTimeout": "100ms"
+        },
+        "quorum": {
+            "enabled": false,
+            "groups": {},
+            "timeout": "2s"
+        }
+    },
+    "p2p": {
+        "bindMultiAddresses": [
+            "/ip4/0.0.0.0/tcp/15600"
+        ],
+        "connectionManager": {
+            "highWatermark": 10,
+            "lowWatermark": 5
+        },
+        "gossipUnknownPeersLimit": 4,
+        "db": {
+            "path": "p2pstore"
+        },
+        "reconnectInterval": "30s"
+    },
+    "p2pdisc": {
+        "advertiseInterval": "30s",
+        "maxDiscoveredPeerConns": 4,
+        "rendezvousPoint": "between-two-vertices",
+        "routingTableRefreshPeriod": "60s"
+    },
+    "logger": {
+        "level": "info",
+        "disableCaller": true,
+        "encoding": "console",
+        "outputPaths": [
+            "stdout"
+        ]
+    }
+}
