@@ -38,10 +38,16 @@ sudo pip install -U git+https://github.com/larsid/FogLedger.git
 
 ## Preparing Blockchain Test
 
-## Run example
+## Run example indy
 
 ```
-cd examples
+cd examples/indy
+```
+
+## Run example iota
+
+```
+cd examples/iota
 ```
 
 ## Run local network test
@@ -50,11 +56,10 @@ cd examples
 sudo python3 test-local-network.py
 ```
 
-## Run distributed network test
+## Run distributed network test 
 
 ```
-sudo python3 examples/indy/test-distributed-network.py
-sudo python3 examples/indy/test-iota-distributed-network.py
+sudo python3 test-distributed-network.py
 ```
 
 ## Example: A local network with four nodes
@@ -115,9 +120,6 @@ from fogbed import (
 
 setLogLevel('info')
 
-def add_datacenters_to_worker(worker: Worker, datacenters: List[VirtualInstance]):
-    for device in datacenters:
-        worker.add(device, reachable=True)
 
 if (__name__ == '__main__'):
     exp = FogbedDistributedExperiment()
@@ -137,8 +139,10 @@ if (__name__ == '__main__'):
     
     iota = IotaBasic(exp=exp, prefix='iota1', conf_nodes=[node1, node2, node3, node4], conf_coord=cord, conf_spammer=spammer)
 
-    add_datacenters_to_worker(worker1, iota.ledgers[:len(iota.ledgers)//2])
-
+    for ledger in iota.ledgers:
+        worker.add(ledger, reachable=True)
+        worker.add_link(edge1, ledger)
+    
     try:
         exp.start()
         iota.start_network()
